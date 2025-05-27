@@ -96,9 +96,12 @@ export default function WeeklyGoalPage() {
           <div className="flex justify-between items-center">
             <BackToHomeButton position="left" />
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                週間目標: {weekKey.split(':')[1]}
+              <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent text-white">
+                週間ビュー
               </h1>
+              <p className="text-gray-400 text-sm">
+                {weekKey.split(':')[1]}
+              </p>
             </div>
             <div></div>
           </div>
@@ -138,14 +141,10 @@ export default function WeeklyGoalPage() {
               <div className="flex flex-col items-center">
                 <div className="relative mb-2">
                   <DonutChart completion={weekScore} />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-xl font-bold text-white">
-                      {weekScore}
-                    </span>
-                  </div>
+                  {/* 重複していた数値表示を削除 */}
                 </div>
                 <p className="text-sm text-gray-400 text-center">
-                  今週の実行スコア
+                  今週の実行スコア: {weekScore}%
                 </p>
               </div>
             ) : (

@@ -58,10 +58,9 @@ export default function YearGoalPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
             <BackToHomeButton position="left" />
-            <div className="flex items-center space-x-4">
-              <CalendarIcon className="w-8 h-8 text-primary" />
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                12週間年間目標
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent text-white">
+                年間ビュー
               </h1>
             </div>
             <div></div>

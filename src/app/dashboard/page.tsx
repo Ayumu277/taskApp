@@ -32,7 +32,7 @@ export default function DashboardPage() {
       quarters.forEach((quarter) => {
         const stored = localStorage.getItem(`quarterGoals:${quarter.key}`);
         loadedGoals[quarter.id] = stored ? JSON.parse(stored) : [];
-      });
+    });
       setGoals(loadedGoals);
     }
   }, []);

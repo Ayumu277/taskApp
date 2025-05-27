@@ -150,6 +150,21 @@ export default function ReviewPage() {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
+      {/* Header */}
+      <div className="bg-gray-800/50 border-b border-gray-700">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex justify-between items-center">
+            <BackToHomeButton position="left" />
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent text-white">
+                週間レビュー
+              </h1>
+            </div>
+            <div></div>
+          </div>
+        </div>
+      </div>
+
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="bg-gray-800/50 border-b border-gray-700 -mx-4 sm:-mx-6 lg:-mx-8 mb-8">
