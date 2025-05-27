@@ -6,7 +6,6 @@ import {
   ClockIcon,
   ChartBarIcon,
   RssIcon,
-  Squares2X2Icon,
   CalendarIcon,
   DocumentTextIcon
 } from '@heroicons/react/24/outline'
@@ -79,24 +78,21 @@ export default function HomePage() {
 
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-12">
           <div className="text-center">
-            {/* App Logo/Icon */}
-            <div className="flex justify-center mb-6">
-              <div className="p-3 bg-gradient-to-r from-sky-500 to-indigo-500 rounded-xl shadow-xl">
-                <div className="inline-flex h-8 w-8 items-center justify-center">
-                  <Squares2X2Icon className="h-6 w-6 text-white flex-shrink-0 max-w-none" />
-                </div>
-              </div>
-            </div>
-
             {/* Main Heading */}
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-sky-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent animate-pulse">
-              <span className="inline-block hover:scale-110 transition-transform duration-300">T</span>
+              <span className="inline-block hover:scale-110 transition-transform duration-300">F</span>
               <span className="inline-block hover:scale-110 transition-transform duration-300 delay-75">a</span>
-              <span className="inline-block hover:scale-110 transition-transform duration-300 delay-150">s</span>
-              <span className="inline-block hover:scale-110 transition-transform duration-300 delay-225">k</span>
-              <span className="inline-block hover:scale-110 transition-transform duration-300 delay-300">A</span>
-              <span className="inline-block hover:scale-110 transition-transform duration-300 delay-375">p</span>
-              <span className="inline-block hover:scale-110 transition-transform duration-300 delay-450">p</span>
+              <span className="inline-block hover:scale-110 transition-transform duration-300 delay-150">c</span>
+              <span className="inline-block hover:scale-110 transition-transform duration-300 delay-225">e</span>
+              <span className="inline-block hover:scale-110 transition-transform duration-300 delay-300 mx-2"> </span>
+              <span className="inline-block hover:scale-110 transition-transform duration-300 delay-375">Y</span>
+              <span className="inline-block hover:scale-110 transition-transform duration-300 delay-450">o</span>
+              <span className="inline-block hover:scale-110 transition-transform duration-300 delay-525">u</span>
+              <span className="inline-block hover:scale-110 transition-transform duration-300 delay-600">r</span>
+              <span className="inline-block hover:scale-110 transition-transform duration-300 delay-675">s</span>
+              <span className="inline-block hover:scale-110 transition-transform duration-300 delay-750">e</span>
+              <span className="inline-block hover:scale-110 transition-transform duration-300 delay-825">l</span>
+              <span className="inline-block hover:scale-110 transition-transform duration-300 delay-900">f</span>
             </h1>
 
             {/* Subtitle */}
@@ -171,7 +167,7 @@ export default function HomePage() {
               今すぐ生産性を向上させましょう
             </h3>
             <p className="text-gray-400 mb-6 max-w-xl mx-auto text-sm sm:text-base">
-              TaskAppで目標達成への道のりを明確にし、毎日の進歩を実感してください。
+              Face Yourselfで目標達成への道のりを明確にし、毎日の進歩を実感してください。
             </p>
             <Link
               href="/dashboard"

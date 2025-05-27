@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { getItem, setItem } from '@/lib/storage'; // Assuming lib is aliased as @/lib
+import { getItem, setItem } from '@/lib/storage';
+import BackToHomeButton from '@/components/BackToHomeButton';
 
 // Type definition for an individual hour task
 export interface HourTask {
@@ -63,11 +64,23 @@ const HourPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-4 sm:p-6 md:p-8">
-      <div className="max-w-xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8 text-center text-sky-400">
-          Hourly Task Log ({new Date().toLocaleDateString()})
-        </h1>
+    <div className="min-h-screen bg-gray-900 text-white">
+      {/* Header */}
+      <div className="bg-gray-800/50 border-b border-gray-700">
+        <div className="max-w-xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex justify-between items-center">
+            <BackToHomeButton position="left" />
+            <div>
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                時間ログ ({new Date().toLocaleDateString()})
+              </h1>
+            </div>
+            <div></div>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-xl mx-auto p-4 sm:p-6 md:p-8">
         {/* Task Input Form */}
         <form onSubmit={handleSubmit} className="mb-10 p-6 bg-gray-800 rounded-xl shadow-lg space-y-4">
           <div>

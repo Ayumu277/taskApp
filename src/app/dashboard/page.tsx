@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { PlusIcon } from '@heroicons/react/24/outline';
 import DonutChart from '@/components/DonutChart';
 import AddGoalModal from '@/components/AddGoalModal';
+import BackToHomeButton from '@/components/BackToHomeButton';
 
 interface QuarterGoal {
   id: string;
@@ -74,13 +75,21 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-gray-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">
-            ダッシュボード
-          </h1>
-          <p className="text-gray-400">
-            四半期ごとの目標を管理し、進捗を追跡しましょう
-          </p>
+        <div className="bg-gray-800/50 border-b border-gray-700 -mx-4 sm:-mx-6 lg:-mx-8 mb-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div className="flex justify-between items-center">
+              <BackToHomeButton position="left" />
+              <div>
+                <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-1">
+                  ダッシュボード
+                </h1>
+                <p className="text-gray-400">
+                  四半期ごとの目標を管理し、進捗を追跡しましょう
+                </p>
+              </div>
+              <div></div>
+            </div>
+          </div>
         </div>
 
         {/* Quarter Tabs */}

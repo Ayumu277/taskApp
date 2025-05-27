@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { getItem, setItem } from '@/lib/storage';
 import { PencilIcon, CheckIcon, XMarkIcon, PlusIcon } from '@heroicons/react/24/outline';
+import BackToHomeButton from '@/components/BackToHomeButton';
 
 interface WeeklyReview {
   weekKey: string;
@@ -151,13 +152,21 @@ export default function ReviewPage() {
     <div className="min-h-screen bg-gray-900 text-white">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">
-            週次レビュー
-          </h1>
-          <p className="text-gray-400">
-            週ごとの振り返りと学びを記録しましょう
-          </p>
+        <div className="bg-gray-800/50 border-b border-gray-700 -mx-4 sm:-mx-6 lg:-mx-8 mb-8">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div className="flex justify-between items-center">
+              <BackToHomeButton position="left" />
+              <div>
+                <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-1">
+                  週次レビュー
+                </h1>
+                <p className="text-gray-400">
+                  週ごとの振り返りと学びを記録しましょう
+                </p>
+              </div>
+              <div></div>
+            </div>
+          </div>
         </div>
 
         {/* Add New Review Button */}
