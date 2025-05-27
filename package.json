@@ -12,6 +12,8 @@
     "test:ui": "vitest --ui"
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
+    "@stagewise/toolbar-next": "^0.1.2",
     "next": "15.0.0-rc.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
@@ -23,6 +25,7 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@vitest/ui": "^1.6.0",
+    "autoprefixer": "^10.4.21",
     "eslint": "^8",
     "eslint-config-next": "15.0.0-rc.0",
     "jsdom": "^24.1.0",
