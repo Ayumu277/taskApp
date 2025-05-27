@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { PlusIcon } from '@heroicons/react/24/outline';
 import DonutChart from '@/components/DonutChart';
 import AddGoalModal from '@/components/AddGoalModal';
@@ -108,7 +109,7 @@ export default function DashboardPage() {
           {currentGoals.slice(0, 3).map((goal) => (
             <div
               key={goal.id}
-              className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-6 hover:border-gray-600 transition-colors duration-200"
+              className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-6 hover:border-gray-600 transition-colors duration-200 group"
             >
               <div className="flex flex-col items-center space-y-4">
                 {/* Donut Chart */}
@@ -122,9 +123,17 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Goal Title */}
-                <h3 className="text-lg font-semibold text-center text-white">
+                <h3 className="text-lg font-semibold text-center text-white mb-2">
                   {goal.title}
                 </h3>
+
+                {/* Kanban Link */}
+                <Link
+                  href={`/dashboard/${goal.id}`}
+                  className="text-sm text-primary hover:text-primary/80 transition-colors duration-200 opacity-0 group-hover:opacity-100"
+                >
+                  タスクを管理 →
+                </Link>
 
                 {/* Progress Controls */}
                 <div className="w-full space-y-2">
