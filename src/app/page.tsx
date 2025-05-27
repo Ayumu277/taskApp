@@ -7,7 +7,8 @@ import {
   ChartBarIcon,
   RssIcon,
   Squares2X2Icon,
-  CalendarIcon
+  CalendarIcon,
+  DocumentTextIcon
 } from '@heroicons/react/24/outline'
 
 const navigationCards = [
@@ -52,6 +53,13 @@ const navigationCards = [
     href: '/dashboard',
     icon: ChartBarIcon,
     gradient: 'from-sky-500 to-blue-500'
+  },
+  {
+    title: '週次レビュー',
+    description: '週ごとの振り返りと学び',
+    href: '/review',
+    icon: DocumentTextIcon,
+    gradient: 'from-emerald-500 to-teal-500'
   }
 ]
 
