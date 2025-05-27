@@ -2,7 +2,7 @@ import './globals.css'
 import { StagewiseToolbar } from '@stagewise/toolbar-next'
 
 export const metadata = {
-  title: 'TaskApp – 生産性追跡アプリ',
+  title: 'Face Yourself',
   description: '年間目標から時間単位のタスクまで、あらゆるレベルで生産性を追跡・管理する究極のタスク管理アプリ',
 }
 
