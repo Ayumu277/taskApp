@@ -1,5 +1,5 @@
 'use client';
-
+import DonutChart from '../../components/DonutChart';
 import React, { useState, useEffect, useCallback } from 'react';
 import { getItem, setItem } from '@/lib/storage'; // Assuming lib is aliased as @/lib
 
@@ -129,34 +129,10 @@ const DayPage = () => {
         </div>
 
         {/* Overall Completion */}
-        <div className="p-6 bg-gray-800 rounded-lg shadow-md text-center">
-          <h2 className="text-2xl font-semibold mb-2 text-sky-300">Overall Completion</h2>
-          <div className="relative w-32 h-32 mx-auto mb-2">
-            <svg className="w-full h-full" viewBox="0 0 36 36">
-              <path
-                className="text-gray-700"
-                d="M18 2.0845
-                  a 15.9155 15.9155 0 0 1 0 31.831
-                  a 15.9155 15.9155 0 0 1 0 -31.831"
-                fill="none"
-                strokeWidth="3.8"
-              />
-              <path
-                className="text-sky-500 transition-all duration-500 ease-out"
-                d="M18 2.0845
-                  a 15.9155 15.9155 0 0 1 0 31.831
-                  a 15.9155 15.9155 0 0 1 0 -31.831"
-                fill="none"
-                strokeWidth="3.8"
-                strokeDasharray={`${overallCompletion}, 100`}
-                strokeLinecap="round"
-              />
-            </svg>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-2xl font-bold text-sky-400">
-                {Math.round(overallCompletion)}%
-              </span>
-            </div>
+        <div className="bg-gray-800 rounded-lg shadow-md p-6 mt-8 flex flex-col items-center">
+          <h2 className="text-2xl font-bold text-sky-300 mb-4">Overall Completion</h2>
+          <div className="flex justify-center">
+            <DonutChart completion={overallCompletion} />
           </div>
         </div>
       </div>

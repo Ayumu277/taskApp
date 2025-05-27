@@ -10,6 +10,7 @@ export interface HourTask {
   before: string;
   after: string;
   createdAt: string; // ISO string for date and time
+  isShared: boolean; // NEW FIELD
 }
 
 const HourPage: React.FC = () => {
@@ -18,6 +19,7 @@ const HourPage: React.FC = () => {
   const [afterNote, setAfterNote] = useState<string>('');
   const [tasks, setTasks] = useState<HourTask[]>([]);
   const [currentDateKey, setCurrentDateKey] = useState<string>('');
+  const [isShared, setIsShared] = useState<boolean>(false);
 
   // Function to get the storage key for the current date
   const getStorageKey = useCallback(() => {
@@ -44,22 +46,20 @@ const HourPage: React.FC = () => {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!taskName.trim()) return; // Basic validation
-
+    if (!taskName.trim()) return;
     const newTask: HourTask = {
       id: crypto.randomUUID(),
       task: taskName.trim(),
       before: beforeNote.trim(),
       after: afterNote.trim(),
       createdAt: new Date().toISOString(),
+      isShared, // NEW FIELD
     };
-
-    setTasks(prevTasks => [newTask, ...prevTasks]); // Add new task to the beginning of the array
-
-    // Clear input fields
+    setTasks(prevTasks => [newTask, ...prevTasks]);
     setTaskName('');
     setBeforeNote('');
     setAfterNote('');
+    setIsShared(false); // Reset after submit
   };
 
   return (
@@ -68,7 +68,6 @@ const HourPage: React.FC = () => {
         <h1 className="text-3xl font-bold mb-8 text-center text-sky-400">
           Hourly Task Log ({new Date().toLocaleDateString()})
         </h1>
-
         {/* Task Input Form */}
         <form onSubmit={handleSubmit} className="mb-10 p-6 bg-gray-800 rounded-xl shadow-lg space-y-4">
           <div>
@@ -104,6 +103,18 @@ const HourPage: React.FC = () => {
               rows={3}
               className="w-full p-3 bg-gray-700 border border-gray-600 rounded-md focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none transition-colors"
             />
+          </div>
+          <div className="flex items-center space-x-2">
+            <input
+              id="isShared"
+              type="checkbox"
+              checked={isShared}
+              onChange={e => setIsShared(e.target.checked)}
+              className="h-5 w-5 text-sky-500 focus:ring-sky-500 border-gray-600 rounded"
+            />
+            <label htmlFor="isShared" className="text-sky-300 text-lg font-medium select-none">
+              Share with friends
+            </label>
           </div>
           <button
             type="submit"
