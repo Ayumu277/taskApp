@@ -5,7 +5,9 @@ import HourTaskModal, { HourTask } from '../../components/HourTaskModal';
 import BackToHomeButton from '@/components/BackToHomeButton';
 import React, { useState, useEffect, useCallback } from 'react';
 import { getItem, setItem } from '@/lib/storage';
-import { PlusIcon, CheckIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, CheckIcon, BookmarkIcon } from '@heroicons/react/24/outline';
+import { useLogs, TaskLog } from '@/hooks/useLogs';
+import { useAuth } from '@/hooks/useAuth';
 
 interface SessionProgress {
   id: number;
@@ -37,6 +39,9 @@ const DayPage = () => {
   const [hourTasks, setHourTasks] = useState<HourTask[]>([]);
   const [isHourModalOpen, setIsHourModalOpen] = useState(false);
   const [overallCompletion, setOverallCompletion] = useState<number>(0);
+
+  const { saveDailyLog, loading: logLoading, error: logError } = useLogs();
+  const { isAuthenticated } = useAuth();
 
   const getFormattedDate = useCallback(() => {
     return new Date().toISOString().split('T')[0]; // YYYY-MM-DD
@@ -152,6 +157,33 @@ const DayPage = () => {
     setHourTasks(prev => [newTask, ...prev]);
   };
 
+  const handleSaveDailyLog = async () => {
+    if (!isAuthenticated) {
+      alert('ログインが必要です');
+      return;
+    }
+
+    const tasksToSave: TaskLog[] = focusTasks
+      .filter(task => task.text.trim())
+      .map(task => ({
+        id: task.id,
+        text: task.text,
+        completed: task.completed
+      }));
+
+    if (tasksToSave.length === 0) {
+      alert('保存するタスクがありません');
+      return;
+    }
+
+    const success = await saveDailyLog(todayKey, tasksToSave);
+    if (success) {
+      alert('今日の記録を保存しました！');
+    } else {
+      alert(`保存に失敗しました: ${logError}`);
+    }
+  };
+
   const completedFocusTasks = focusTasks.filter(task => task.completed && task.text.trim()).length;
   const totalFocusTasks = focusTasks.filter(task => task.text.trim()).length;
 
@@ -202,9 +234,21 @@ const DayPage = () => {
             <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-semibold text-accent">フォーカスタスク</h2>
-                <span className="text-sm text-gray-400">
-                  {completedFocusTasks}/{totalFocusTasks} 完了
-                </span>
+                <div className="flex items-center space-x-4">
+                  <span className="text-sm text-gray-400">
+                    {completedFocusTasks}/{totalFocusTasks} 完了
+                  </span>
+                  {isAuthenticated && (
+                    <button
+                      onClick={handleSaveDailyLog}
+                      disabled={logLoading}
+                      className="flex items-center px-3 py-1.5 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white text-sm rounded-lg transition-colors duration-200"
+                    >
+                      <BookmarkIcon className="w-4 h-4 mr-1" />
+                      {logLoading ? '保存中...' : '記録を残す'}
+                    </button>
+                  )}
+                </div>
               </div>
               <div className="space-y-3">
                 {focusTasks.map((task) => (

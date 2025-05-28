@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { getItem, setItem } from '@/lib/storage';
 import DonutChart from '@/components/DonutChart';
 import WeekScoreModal from '@/components/WeekScoreModal';
 import BackToHomeButton from '@/components/BackToHomeButton';
-
-
+import { BookmarkIcon } from '@heroicons/react/24/outline';
+import { useLogs, TaskLog } from '@/hooks/useLogs';
+import { useAuth } from '@/hooks/useAuth';
 
 // Helper function to get ISO week number
 const getISOWeek = (date: Date): number => {
@@ -46,12 +47,21 @@ export default function WeeklyGoalPage() {
   const [isScoreModalOpen, setIsScoreModalOpen] = useState(false);
   const [hasCheckedAutoModal, setHasCheckedAutoModal] = useState(false);
 
+  const { saveWeeklyLog, loading: logLoading, error: logError } = useLogs();
+  const { isAuthenticated } = useAuth();
+
+  const getWeekStartDate = useCallback(() => {
+    const now = new Date();
+    const day = now.getDay();
+    const diff = now.getDate() - day + (day === 0 ? -6 : 1); // Monday as start of week
+    const monday = new Date(now.setDate(diff));
+    return monday.toISOString().split('T')[0];
+  }, []);
+
   useEffect(() => {
     const currentKey = getCurrentWeekKey();
     const scoreKey = getWeekScoreKey();
     setWeekKey(currentKey);
-
-
 
     // Load the current week's goal
     const savedWeekGoal = getItem<string>(currentKey, '');
@@ -83,6 +93,48 @@ export default function WeeklyGoalPage() {
 
   const openScoreModal = () => {
     setIsScoreModalOpen(true);
+  };
+
+  const handleSaveWeeklyLog = async () => {
+    if (!isAuthenticated) {
+      alert('ログインが必要です');
+      return;
+    }
+
+    if (!currentWeekGoal.trim()) {
+      alert('保存する週間目標がありません');
+      return;
+    }
+
+    // Get focus tasks from daily storage for this week
+    const weekStart = getWeekStartDate();
+    const focusTasks: TaskLog[] = [];
+
+    // Collect focus tasks from the past 7 days
+    for (let i = 0; i < 7; i++) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      const dateStr = date.toISOString().split('T')[0];
+      const dayFocusKey = `dayFocus:${dateStr}`;
+      const dayTasks = getItem(dayFocusKey, []) as any[];
+
+      dayTasks.forEach((task, index) => {
+        if (task.text && task.text.trim()) {
+          focusTasks.push({
+            id: focusTasks.length + 1,
+            text: task.text,
+            completed: task.completed || false
+          });
+        }
+      });
+    }
+
+    const success = await saveWeeklyLog(weekStart, currentWeekGoal, focusTasks);
+    if (success) {
+      alert('今週の記録を保存しました！');
+    } else {
+      alert(`保存に失敗しました: ${logError}`);
+    }
   };
 
   return (
@@ -123,13 +175,23 @@ export default function WeeklyGoalPage() {
                 className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-white placeholder-gray-400 resize-none"
                 placeholder="今週達成したい具体的な目標を入力してください..."
               />
-              <div className="flex justify-end">
+              <div className="flex justify-end space-x-3">
                 <button
                   onClick={handleSaveWeekGoal}
                   className="bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
                 >
                   目標を保存
                 </button>
+                {isAuthenticated && (
+                  <button
+                    onClick={handleSaveWeeklyLog}
+                    disabled={logLoading}
+                    className="flex items-center bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
+                  >
+                    <BookmarkIcon className="w-4 h-4 mr-2" />
+                    {logLoading ? '保存中...' : '週記録を残す'}
+                  </button>
+                )}
               </div>
             </div>
           </div>

@@ -34,18 +34,18 @@ const navigationCards = [
     gradient: 'from-purple-500 to-pink-500'
   },
   {
+    title: 'タスクログ',
+    description: '過去の記録を振り返り',
+    href: '/logs',
+    icon: DocumentTextIcon,
+    gradient: 'from-emerald-500 to-teal-500'
+  },
+  {
     title: 'フィード',
     description: '活動履歴とアップデート',
     href: '/feed',
     icon: RssIcon,
     gradient: 'from-indigo-500 to-purple-500'
-  },
-  {
-    title: 'ダッシュボード',
-    description: '統計と分析データ',
-    href: '/dashboard',
-    icon: ChartBarIcon,
-    gradient: 'from-sky-500 to-blue-500'
   }
 ]
 
