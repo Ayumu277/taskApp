@@ -6,6 +6,9 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabaseClient'
 import { EyeIcon, EyeSlashIcon, LockClosedIcon } from '@heroicons/react/24/outline'
 
+// Force dynamic rendering to avoid static generation issues with useSearchParams
+export const dynamic = 'force-dynamic'
+
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
