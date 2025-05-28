@@ -6,23 +6,42 @@ import { XMarkIcon } from '@heroicons/react/24/outline'
 interface AddGoalModalProps {
   isOpen: boolean
   onClose: () => void
-  onAdd: (title: string) => void
+  onAdd: (title: string, startDate?: string, endDate?: string) => void
   quarterLabel: string
 }
 
 export default function AddGoalModal({ isOpen, onClose, onAdd, quarterLabel }: AddGoalModalProps) {
   const [title, setTitle] = useState('')
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
+
+  const handleStartDateChange = (date: string) => {
+    setStartDate(date)
+    if (date) {
+      // Calculate 12 weeks later
+      const start = new Date(date)
+      const end = new Date(start)
+      end.setDate(start.getDate() + (12 * 7)) // 12 weeks = 84 days
+      setEndDate(end.toISOString().split('T')[0])
+    } else {
+      setEndDate('')
+    }
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (title.trim()) {
-      onAdd(title.trim())
+      onAdd(title.trim(), startDate || undefined, endDate || undefined)
       setTitle('')
+      setStartDate('')
+      setEndDate('')
     }
   }
 
   const handleClose = () => {
     setTitle('')
+    setStartDate('')
+    setEndDate('')
     onClose()
   }
 
@@ -82,6 +101,34 @@ export default function AddGoalModal({ isOpen, onClose, onAdd, quarterLabel }: A
                 <span className="text-xs text-gray-400">
                   {title.length}/50
                 </span>
+              </div>
+            </div>
+
+            {/* Date Range */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="startDate" className="block text-sm font-medium text-gray-300 mb-2">
+                  開始日
+                </label>
+                <input
+                  type="date"
+                  id="startDate"
+                  value={startDate}
+                  onChange={(e) => handleStartDateChange(e.target.value)}
+                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-white"
+                />
+              </div>
+              <div>
+                <label htmlFor="endDate" className="block text-sm font-medium text-gray-300 mb-2">
+                  終了日（12週間後）
+                </label>
+                <input
+                  type="date"
+                  id="endDate"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-white"
+                />
               </div>
             </div>
 

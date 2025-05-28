@@ -156,9 +156,12 @@ export default function ReviewPage() {
           <div className="flex justify-between items-center">
             <BackToHomeButton position="left" />
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent text-white">
-                週間レビュー
+              <h1 className="text-2xl md:text-3xl font-bold text-white mb-1">
+                週次レビュー
               </h1>
+              <p className="text-gray-400">
+                週ごとの振り返りと学びを記録しましょう
+              </p>
             </div>
             <div></div>
           </div>
@@ -166,23 +169,6 @@ export default function ReviewPage() {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="bg-gray-800/50 border-b border-gray-700 -mx-4 sm:-mx-6 lg:-mx-8 mb-8">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div className="flex justify-between items-center">
-              <BackToHomeButton position="left" />
-              <div>
-                <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-1">
-                  週次レビュー
-                </h1>
-                <p className="text-gray-400">
-                  週ごとの振り返りと学びを記録しましょう
-                </p>
-              </div>
-              <div></div>
-            </div>
-          </div>
-        </div>
 
         {/* Add New Review Button */}
         <div className="mb-8">

@@ -13,63 +13,96 @@ interface QuarterGoal {
   progress: number;
 }
 
-const quarters = [
-  { id: 'Q1', label: 'Q1 2025', key: '2025-Q1' },
-  { id: 'Q2', label: 'Q2 2025', key: '2025-Q2' },
-  { id: 'Q3', label: 'Q3 2025', key: '2025-Q3' },
-  { id: 'Q4', label: 'Q4 2025', key: '2025-Q4' },
+interface Span {
+  id: string;
+  label: string;
+  key: string;
+  startDate: string;
+  endDate: string;
+}
+
+const getDefaultSpans = (): Span[] => [
+  { id: 'SPAN1', label: 'スパン 1', key: 'span-1', startDate: '', endDate: '' },
+  { id: 'SPAN2', label: 'スパン 2', key: 'span-2', startDate: '', endDate: '' },
+  { id: 'SPAN3', label: 'スパン 3', key: 'span-3', startDate: '', endDate: '' },
+  { id: 'SPAN4', label: 'スパン 4', key: 'span-4', startDate: '', endDate: '' },
 ];
 
 export default function DashboardPage() {
-  const [activeQuarter, setActiveQuarter] = useState('Q1');
+  const [activeSpan, setActiveSpan] = useState('SPAN1');
   const [goals, setGoals] = useState<{ [key: string]: QuarterGoal[] }>({});
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [spans, setSpans] = useState<Span[]>(getDefaultSpans());
+  const [isSpanModalOpen, setIsSpanModalOpen] = useState(false);
+  const [editingSpan, setEditingSpan] = useState<Span | null>(null);
 
-  // Load goals from localStorage
+  // Load spans and goals from localStorage
   useEffect(() => {
     if (typeof window !== 'undefined') {
+      // Load spans
+      const savedSpans = localStorage.getItem('spans');
+      const loadedSpans = savedSpans ? JSON.parse(savedSpans) : getDefaultSpans();
+      setSpans(loadedSpans);
+
+      // Load goals
       const loadedGoals: { [key: string]: QuarterGoal[] } = {};
-      quarters.forEach((quarter) => {
-        const stored = localStorage.getItem(`quarterGoals:${quarter.key}`);
-        loadedGoals[quarter.id] = stored ? JSON.parse(stored) : [];
-    });
+      loadedSpans.forEach((span: Span) => {
+        const stored = localStorage.getItem(`spanGoals:${span.key}`);
+        loadedGoals[span.id] = stored ? JSON.parse(stored) : [];
+      });
       setGoals(loadedGoals);
     }
   }, []);
 
-  // Save goals to localStorage
-  const saveGoals = (quarterId: string, quarterGoals: QuarterGoal[]) => {
+  // Save spans to localStorage
+  const saveSpans = (newSpans: Span[]) => {
     if (typeof window !== 'undefined') {
-      const quarter = quarters.find((q) => q.id === quarterId);
-      if (quarter) {
-        localStorage.setItem(`quarterGoals:${quarter.key}`, JSON.stringify(quarterGoals));
+      localStorage.setItem('spans', JSON.stringify(newSpans));
+      setSpans(newSpans);
+    }
+  };
+
+  // Save goals to localStorage
+  const saveGoals = (spanId: string, spanGoals: QuarterGoal[]) => {
+    if (typeof window !== 'undefined') {
+      const span = spans.find((s) => s.id === spanId);
+      if (span) {
+        localStorage.setItem(`spanGoals:${span.key}`, JSON.stringify(spanGoals));
       }
     }
   };
 
-  const addGoal = (title: string) => {
+  const addGoal = (title: string, startDate?: string, endDate?: string) => {
     const newGoal: QuarterGoal = {
       id: Date.now().toString(),
       title,
       progress: 0,
     };
 
-    const updatedGoals = [...(goals[activeQuarter] || []), newGoal];
-    setGoals((prev) => ({ ...prev, [activeQuarter]: updatedGoals }));
-    saveGoals(activeQuarter, updatedGoals);
+    // If dates are provided, update the span
+    if (startDate && endDate) {
+      const updatedSpans = spans.map(s =>
+        s.id === activeSpan ? { ...s, startDate, endDate } : s
+      );
+      saveSpans(updatedSpans);
+    }
+
+    const updatedGoals = [...(goals[activeSpan] || []), newGoal];
+    setGoals((prev) => ({ ...prev, [activeSpan]: updatedGoals }));
+    saveGoals(activeSpan, updatedGoals);
     setIsModalOpen(false);
   };
 
   const updateGoalProgress = (goalId: string, newProgress: number) => {
-    const currentGoals = goals[activeQuarter] || [];
+    const currentGoals = goals[activeSpan] || [];
     const updatedGoals = currentGoals.map((goal) =>
       goal.id === goalId ? { ...goal, progress: newProgress } : goal
     );
-    setGoals((prev) => ({ ...prev, [activeQuarter]: updatedGoals }));
-    saveGoals(activeQuarter, updatedGoals);
+    setGoals((prev) => ({ ...prev, [activeSpan]: updatedGoals }));
+    saveGoals(activeSpan, updatedGoals);
   };
 
-  const currentGoals = goals[activeQuarter] || [];
+  const currentGoals = goals[activeSpan] || [];
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
@@ -80,11 +113,11 @@ export default function DashboardPage() {
             <div className="flex justify-between items-center">
               <BackToHomeButton position="left" />
               <div>
-                <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-1">
-                  ダッシュボード
+                <h1 className="text-2xl md:text-3xl font-bold text-white mb-1">
+                  12週間目標
                 </h1>
                 <p className="text-gray-400">
-                  四半期ごとの目標を管理し、進捗を追跡しましょう
+                  12週間スパンの目標を管理し、進捗を追跡しましょう
                 </p>
               </div>
               <div></div>
@@ -92,22 +125,36 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Quarter Tabs */}
+        {/* Span Tabs */}
         <div className="mb-8">
           <div className="border-b border-gray-700">
             <nav className="-mb-px flex space-x-8">
-              {quarters.map((quarter) => (
-                <button
-                  key={quarter.id}
-                  onClick={() => setActiveQuarter(quarter.id)}
-                  className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${
-                    activeQuarter === quarter.id
-                      ? 'border-primary text-primary'
-                      : 'border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-300'
-                  }`}
-                >
-                  {quarter.label}
-                </button>
+              {spans.map((span) => (
+                <div key={span.id} className="flex items-center space-x-2">
+                  <button
+                    onClick={() => setActiveSpan(span.id)}
+                    className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${
+                      activeSpan === span.id
+                        ? 'border-primary text-primary'
+                        : 'border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-300'
+                    }`}
+                  >
+                    {span.label}
+                    {span.startDate && span.endDate && (
+                      <div className="text-xs text-gray-500 mt-1">
+                        {span.startDate} ~ {span.endDate}
+                      </div>
+                    )}
+                  </button>
+                  {span.id === 'SPAN1' && (
+                    <Link
+                      href="/week"
+                      className="text-xs text-gray-500 hover:text-gray-400 transition-colors"
+                    >
+                      📅
+                    </Link>
+                  )}
+                </div>
               ))}
             </nav>
           </div>
@@ -178,7 +225,7 @@ export default function DashboardPage() {
                   新しい目標を追加
                 </h3>
                 <p className="text-sm text-gray-500">
-                  四半期の目標を設定しましょう
+                  12週間スパンの目標を設定しましょう
                 </p>
               </div>
             </button>
@@ -189,7 +236,7 @@ export default function DashboardPage() {
         {currentGoals.length >= 3 && (
           <div className="bg-accent/10 border border-accent/20 rounded-lg p-4 text-center">
             <p className="text-accent font-medium">
-              四半期あたり最大3つの目標まで設定できます
+              12週間スパンあたり最大3つの目標まで設定できます
             </p>
             <p className="text-sm text-gray-400 mt-1">
               集中して取り組むために、重要な目標に絞りましょう
@@ -207,7 +254,7 @@ export default function DashboardPage() {
               まだ目標が設定されていません
             </h3>
             <p className="text-gray-500 mb-6">
-              {quarters.find(q => q.id === activeQuarter)?.label}の目標を追加して始めましょう
+              {spans.find(s => s.id === activeSpan)?.label}の目標を追加して始めましょう
             </p>
             <button
               onClick={() => setIsModalOpen(true)}
@@ -224,8 +271,67 @@ export default function DashboardPage() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onAdd={addGoal}
-        quarterLabel={quarters.find(q => q.id === activeQuarter)?.label || ''}
+        quarterLabel={spans.find(s => s.id === activeSpan)?.label || ''}
       />
+
+      {/* Span Edit Modal */}
+      {isSpanModalOpen && editingSpan && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-gray-800 rounded-lg p-6 w-full max-w-md">
+            <h3 className="text-lg font-semibold text-white mb-4">
+              {editingSpan.label}の期間設定
+            </h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  開始日
+                </label>
+                <input
+                  type="date"
+                  value={editingSpan.startDate}
+                  onChange={(e) => setEditingSpan({...editingSpan, startDate: e.target.value})}
+                  className="w-full p-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  終了日（12週間後）
+                </label>
+                <input
+                  type="date"
+                  value={editingSpan.endDate}
+                  onChange={(e) => setEditingSpan({...editingSpan, endDate: e.target.value})}
+                  className="w-full p-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
+                />
+              </div>
+            </div>
+            <div className="flex justify-end space-x-3 mt-6">
+              <button
+                onClick={() => {
+                  setIsSpanModalOpen(false);
+                  setEditingSpan(null);
+                }}
+                className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
+              >
+                キャンセル
+              </button>
+              <button
+                onClick={() => {
+                  const updatedSpans = spans.map(s =>
+                    s.id === editingSpan.id ? editingSpan : s
+                  );
+                  saveSpans(updatedSpans);
+                  setIsSpanModalOpen(false);
+                  setEditingSpan(null);
+                }}
+                className="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors"
+              >
+                保存
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

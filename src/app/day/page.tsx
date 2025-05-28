@@ -26,6 +26,7 @@ const DayPage = () => {
     { id: 1, text: '', completed: false },
     { id: 2, text: '', completed: false },
     { id: 3, text: '', completed: false },
+    { id: 4, text: '', completed: false },
   ]);
   const [sessions, setSessions] = useState<SessionProgress[]>([
     { id: 1, label: 'Session 1', value: 0 },
@@ -58,7 +59,7 @@ const DayPage = () => {
 
     // Load focus tasks
     const loadedFocusTasks = getItem<FocusTask[]>(focusKey, []);
-    if (loadedFocusTasks && loadedFocusTasks.length === 3) {
+    if (loadedFocusTasks && loadedFocusTasks.length === 4) {
       setFocusTasks(loadedFocusTasks);
     }
 
@@ -167,7 +168,7 @@ const DayPage = () => {
             <BackToHomeButton position="left" />
             <div>
               <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent text-white">
-                日間ビュー
+                今日のタスク
               </h1>
             </div>
             <div></div>
@@ -236,22 +237,26 @@ const DayPage = () => {
             <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-6">
               <h2 className="text-xl font-semibold text-accent mb-4">セッション進捗</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {sessions.map((session) => (
-                  <div key={session.id} className="bg-gray-700/30 rounded-lg p-4">
-                    <label htmlFor={`session-${session.id}`} className="block text-sm font-medium mb-2 text-primary">
-                      {session.label} ({session.value}%)
-                    </label>
-                    <input
-                      type="range"
-                      id={`session-${session.id}`}
-                      min="0"
-                      max="100"
-                      value={session.value}
-                      onChange={(e) => handleSliderChange(session.id, parseInt(e.target.value, 10))}
-                      className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
-                    />
-                  </div>
-                ))}
+                {sessions.map((session) => {
+                  const relatedTask = focusTasks.find(task => task.id === session.id);
+                  const taskName = relatedTask?.text || `フォーカスタスク ${session.id}`;
+                  return (
+                    <div key={session.id} className="bg-gray-700/30 rounded-lg p-4">
+                      <label htmlFor={`session-${session.id}`} className="block text-sm font-medium mb-2 text-primary">
+                        {taskName} ({session.value}%)
+                      </label>
+                      <input
+                        type="range"
+                        id={`session-${session.id}`}
+                        min="0"
+                        max="100"
+                        value={session.value}
+                        onChange={(e) => handleSliderChange(session.id, parseInt(e.target.value, 10))}
+                        className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
+                      />
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>

@@ -6,7 +6,7 @@ import DonutChart from '@/components/DonutChart';
 import WeekScoreModal from '@/components/WeekScoreModal';
 import BackToHomeButton from '@/components/BackToHomeButton';
 
-const YEAR_GOAL_KEY = 'yearGoal';
+
 
 // Helper function to get ISO week number
 const getISOWeek = (date: Date): number => {
@@ -41,7 +41,6 @@ const isWeekEndTime = (): boolean => {
 
 export default function WeeklyGoalPage() {
   const [currentWeekGoal, setCurrentWeekGoal] = useState<string>('');
-  const [yearGoal, setYearGoal] = useState<string>('');
   const [weekKey, setWeekKey] = useState<string>('');
   const [weekScore, setWeekScore] = useState<number | null>(null);
   const [isScoreModalOpen, setIsScoreModalOpen] = useState(false);
@@ -52,9 +51,7 @@ export default function WeeklyGoalPage() {
     const scoreKey = getWeekScoreKey();
     setWeekKey(currentKey);
 
-    // Load the 12-week year goal
-    const savedYearGoal = getItem<string>(YEAR_GOAL_KEY, '');
-    setYearGoal(savedYearGoal);
+
 
     // Load the current week's goal
     const savedWeekGoal = getItem<string>(currentKey, '');
@@ -115,20 +112,32 @@ export default function WeeklyGoalPage() {
 
         {/* Week Goal and Score Section */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          {/* Year Goal (Read-only) */}
+          {/* Week Goal Input */}
           <div className="lg:col-span-2 bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-6">
-            <h2 className="text-lg font-semibold text-primary mb-3">12週間目標 (参考)</h2>
-            <div className="bg-gray-700/30 rounded-lg p-4">
-              <p className="text-gray-300 whitespace-pre-wrap">
-                {yearGoal || '12週間目標がまだ設定されていません。'}
-              </p>
+            <h2 className="text-xl font-semibold text-primary mb-4">今週の目標</h2>
+            <div className="space-y-4">
+              <textarea
+                value={currentWeekGoal}
+                onChange={(e) => setCurrentWeekGoal(e.target.value)}
+                rows={8}
+                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-white placeholder-gray-400 resize-none"
+                placeholder="今週達成したい具体的な目標を入力してください..."
+              />
+              <div className="flex justify-end">
+                <button
+                  onClick={handleSaveWeekGoal}
+                  className="bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
+                >
+                  目標を保存
+                </button>
+              </div>
             </div>
           </div>
 
           {/* Week Score */}
           <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-accent">実行スコア</h3>
+              <h3 className="text-xl font-semibold text-accent">実行スコア</h3>
               <button
                 onClick={openScoreModal}
                 className="text-sm text-primary hover:text-primary/80 transition-colors duration-200"
@@ -139,9 +148,8 @@ export default function WeeklyGoalPage() {
 
             {weekScore !== null ? (
               <div className="flex flex-col items-center">
-                <div className="relative mb-2">
+                <div className="relative mb-4">
                   <DonutChart completion={weekScore} />
-                  {/* 重複していた数値表示を削除 */}
                 </div>
                 <p className="text-sm text-gray-400 text-center">
                   今週の実行スコア: {weekScore}%
@@ -163,28 +171,6 @@ export default function WeeklyGoalPage() {
                 </button>
               </div>
             )}
-          </div>
-        </div>
-
-        {/* Week Goal Input */}
-        <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-6 mb-8">
-          <h2 className="text-lg font-semibold text-white mb-4">今週の目標</h2>
-          <div className="space-y-4">
-            <textarea
-              value={currentWeekGoal}
-              onChange={(e) => setCurrentWeekGoal(e.target.value)}
-              rows={6}
-              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-white placeholder-gray-400 resize-none"
-              placeholder="今週達成したい具体的な目標を入力してください..."
-            />
-            <div className="flex justify-end">
-              <button
-                onClick={handleSaveWeekGoal}
-                className="bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
-              >
-                目標を保存
-              </button>
-            </div>
           </div>
         </div>
 

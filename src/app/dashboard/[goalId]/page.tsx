@@ -37,12 +37,12 @@ export default function GoalKanbanPage() {
   // Load goal and tasks from localStorage
   useEffect(() => {
     if (typeof window !== 'undefined' && goalId) {
-      // Find goal from all quarters
-      const quarters = ['2025-Q1', '2025-Q2', '2025-Q3', '2025-Q4']
+      // Find goal from all spans
+      const spans = JSON.parse(localStorage.getItem('spans') || '[]')
       let foundGoal: QuarterGoal | null = null
 
-      for (const quarter of quarters) {
-        const stored = localStorage.getItem(`quarterGoals:${quarter}`)
+      for (const span of spans) {
+        const stored = localStorage.getItem(`spanGoals:${span.key}`)
         if (stored) {
           const goals: QuarterGoal[] = JSON.parse(stored)
           foundGoal = goals.find(g => g.id === goalId) || null
