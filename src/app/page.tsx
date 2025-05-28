@@ -9,9 +9,14 @@ import {
   ChartBarIcon,
   RssIcon,
   CalendarIcon,
-  DocumentTextIcon
+  DocumentTextIcon,
+  UserIcon,
+  Cog6ToothIcon,
+  ChevronDownIcon
 } from '@heroicons/react/24/outline'
 import { getItem } from '@/lib/storage'
+import { useAuth } from '@/hooks/useAuth'
+import LogoutButton from '@/components/LogoutButton'
 
 const navigationCards = [
   {
@@ -62,6 +67,8 @@ export default function HomePage() {
     yearGoal: '',
     weekGoal: ''
   })
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
+  const { user, loading, isAuthenticated } = useAuth()
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -101,13 +108,98 @@ export default function HomePage() {
     }
   }, [])
 
+  // Close user menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (isUserMenuOpen) {
+        setIsUserMenuOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isUserMenuOpen])
+
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900" />
         <div className="absolute inset-0 bg-gradient-to-r from-sky-500/10 via-transparent to-indigo-500/10" />
-        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-12">
+
+        {/* Header with User Menu */}
+        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+          <div className="flex justify-end">
+            {loading ? (
+              <div className="w-8 h-8 animate-spin rounded-full border-b-2 border-sky-400"></div>
+            ) : isAuthenticated ? (
+              /* Authenticated User Menu */
+              <div className="relative">
+                <button
+                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                  className="flex items-center space-x-2 bg-gray-800/50 hover:bg-gray-800/70 backdrop-blur-sm border border-gray-700/50 rounded-lg px-3 py-2 transition-all duration-200"
+                >
+                  <div className="w-8 h-8 bg-gradient-to-r from-sky-500 to-indigo-500 rounded-full flex items-center justify-center">
+                    <UserIcon className="w-4 h-4 text-white" />
+                  </div>
+                  <span className="text-white text-sm font-medium hidden sm:block">
+                    {user?.email?.split('@')[0] || 'ユーザー'}
+                  </span>
+                  <ChevronDownIcon className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isUserMenuOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {/* Dropdown Menu */}
+                {isUserMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50">
+                    <div className="py-1">
+                      <div className="px-4 py-2 border-b border-gray-700">
+                        <p className="text-sm text-gray-300 truncate">{user?.email}</p>
+                      </div>
+                      <Link
+                        href="/settings"
+                        className="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        <Cog6ToothIcon className="w-4 h-4 mr-3" />
+                        設定
+                      </Link>
+                      <div className="px-4 py-2">
+                        <LogoutButton
+                          variant="text"
+                          size="sm"
+                          className="w-full justify-start text-red-400 hover:text-red-300 hover:bg-red-900/20"
+                          showIcon={true}
+                        >
+                          ログアウト
+                        </LogoutButton>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              /* Unauthenticated User Buttons */
+              <div className="flex items-center space-x-3">
+                <Link
+                  href="/login"
+                  className="bg-gray-800/50 hover:bg-gray-800/70 backdrop-blur-sm border border-gray-700/50 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+                >
+                  ログイン
+                </Link>
+                <Link
+                  href="/signup"
+                  className="bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-600 hover:to-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+                >
+                  新規登録
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-12">
           <div className="text-center">
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-sky-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent animate-pulse">
               Face Yourself
