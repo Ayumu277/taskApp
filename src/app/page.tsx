@@ -14,11 +14,18 @@ import {
   Cog6ToothIcon,
   ChevronDownIcon
 } from '@heroicons/react/24/outline'
-import { getItem } from '@/lib/storage'
+import { getItem, setItem } from '@/lib/storage'
 import { useAuth } from '@/hooks/useAuth'
 import LogoutButton from '@/components/LogoutButton'
 
 const navigationCards = [
+  {
+    title: '12週間目標',
+    description: '12週間スパンの目標管理',
+    href: '/dashboard',
+    icon: ChartBarIcon,
+    gradient: 'from-sky-500 to-blue-500'
+  },
   {
     title: '年間ビュー',
     description: '年間の目標と進捗を追跡',
@@ -39,13 +46,6 @@ const navigationCards = [
     href: '/dashboard',
     icon: ChartBarIcon,
     gradient: 'from-sky-500 to-blue-500'
-  },
-  {
-    title: '時間ビュー',
-    description: '時間単位の詳細管理',
-    href: '/hour',
-    icon: ClockIcon,
-    gradient: 'from-orange-500 to-red-500'
   }
 ]
 
@@ -56,6 +56,13 @@ interface TodayData {
   logs: any[]
   yearGoal: string
   weekGoal: string
+  // Timer data
+  timerMode: 'work' | 'break'
+  timerRunning: boolean
+  timerMinutes: number
+  timerSeconds: number
+  currentTaskName: string
+  currentBeforeNote: string
 }
 
 export default function HomePage() {
@@ -65,7 +72,14 @@ export default function HomePage() {
     sessions: [],
     logs: [],
     yearGoal: '',
-    weekGoal: ''
+    weekGoal: '',
+    // Timer data
+    timerMode: 'work',
+    timerRunning: false,
+    timerMinutes: 0,
+    timerSeconds: 0,
+    currentTaskName: '',
+    currentBeforeNote: ''
   })
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const { user, loading, isAuthenticated } = useAuth()
@@ -104,9 +118,151 @@ export default function HomePage() {
       const yearGoal = spanGoals.length > 0 ? spanGoals[0].title : ''
 
       const weekGoal = getItem(weekGoalKey, '')
-      setTodayData({ todayTask, focusTasks, sessions, logs, yearGoal, weekGoal })
+
+      // Load timer data
+      const timerState = getItem('pomodoroTimer', {
+        mode: 'work',
+        isRunning: false,
+        minutes: 25,
+        seconds: 0,
+        workMinutes: 25,
+        breakMinutes: 5
+      })
+      const currentTask = getItem('currentTask', {
+        name: '',
+        beforeNote: ''
+      })
+
+      setTodayData({
+        todayTask,
+        focusTasks,
+        sessions,
+        logs,
+        yearGoal,
+        weekGoal,
+        timerMode: (timerState.mode === 'break' ? 'break' : 'work') as 'work' | 'break',
+        timerRunning: timerState.isRunning,
+        timerMinutes: timerState.minutes,
+        timerSeconds: timerState.seconds,
+        currentTaskName: currentTask.name,
+        currentBeforeNote: currentTask.beforeNote
+      })
     }
   }, [])
+
+  // Real-time timer update
+  useEffect(() => {
+    const updateTimerData = () => {
+      if (typeof window !== 'undefined') {
+        const timerState = getItem('pomodoroTimer', {
+          mode: 'work',
+          isRunning: false,
+          minutes: 25,
+          seconds: 0,
+          workMinutes: 25,
+          breakMinutes: 5
+        })
+        const currentTask = getItem('currentTask', {
+          name: '',
+          beforeNote: ''
+        })
+
+        // If timer is running, decrement time
+        if (timerState.isRunning && (timerState.minutes > 0 || timerState.seconds > 0)) {
+          let newMinutes = timerState.minutes
+          let newSeconds = timerState.seconds
+
+          if (newSeconds > 0) {
+            newSeconds--
+          } else if (newMinutes > 0) {
+            newMinutes--
+            newSeconds = 59
+          }
+
+          // Update localStorage with new time
+          const updatedTimer = {
+            ...timerState,
+            minutes: newMinutes,
+            seconds: newSeconds
+          }
+          setItem('pomodoroTimer', updatedTimer)
+
+          // If timer reaches 0, handle completion
+          if (newMinutes === 0 && newSeconds === 0) {
+            const completedTimer = {
+              ...updatedTimer,
+              isRunning: false,
+              mode: timerState.mode === 'work' ? 'break' : 'work',
+              minutes: timerState.mode === 'work' ? (timerState.breakMinutes || 5) : (timerState.workMinutes || 25),
+              seconds: 0
+            }
+            setItem('pomodoroTimer', completedTimer)
+          }
+        }
+
+        setTodayData(prev => ({
+          ...prev,
+          timerMode: (timerState.mode === 'break' ? 'break' : 'work') as 'work' | 'break',
+          timerRunning: timerState.isRunning,
+          timerMinutes: timerState.minutes,
+          timerSeconds: timerState.seconds,
+          currentTaskName: currentTask.name,
+          currentBeforeNote: currentTask.beforeNote
+        }))
+      }
+    }
+
+    // Update immediately
+    updateTimerData()
+
+    // Set up interval for real-time updates
+    const interval = setInterval(updateTimerData, 1000)
+
+    return () => clearInterval(interval)
+  }, [])
+
+  // Timer control functions
+  const startTimer = () => {
+    const currentTimer = getItem('pomodoroTimer', {
+      mode: 'work',
+      isRunning: false,
+      minutes: 25,
+      seconds: 0,
+      workMinutes: 25,
+      breakMinutes: 5
+    })
+    setItem('pomodoroTimer', { ...currentTimer, isRunning: true })
+  }
+
+  const pauseTimer = () => {
+    const currentTimer = getItem('pomodoroTimer', {
+      mode: 'work',
+      isRunning: false,
+      minutes: 25,
+      seconds: 0,
+      workMinutes: 25,
+      breakMinutes: 5
+    })
+    setItem('pomodoroTimer', { ...currentTimer, isRunning: false })
+  }
+
+  const resetTimer = () => {
+    const currentTimer = getItem('pomodoroTimer', {
+      mode: 'work',
+      isRunning: false,
+      minutes: 25,
+      seconds: 0,
+      workMinutes: 25,
+      breakMinutes: 5
+    })
+    const resetMinutes = currentTimer.mode === 'work' ? (currentTimer.workMinutes || 25) : (currentTimer.breakMinutes || 5)
+    setItem('pomodoroTimer', {
+      ...currentTimer,
+      isRunning: false,
+      minutes: resetMinutes,
+      seconds: 0
+    })
+  }
 
   // Close user menu when clicking outside
   useEffect(() => {
@@ -321,27 +477,137 @@ export default function HomePage() {
 
           {/* 右側の目標カード（2段） */}
           <div className="flex flex-col gap-4 min-h-[400px]">
-            {/* 12週間目標 */}
-            <Link
-              href="/dashboard"
-              className="group relative overflow-hidden rounded-xl bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 hover:border-gray-600/50 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-sky-500/20 flex-1 block"
+            {/* 時間ビュー */}
+            <div
+              onClick={() => window.location.href = '/hour'}
+              className="group relative overflow-hidden rounded-xl bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 hover:border-gray-600/50 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-orange-500/20 flex-1 cursor-pointer"
             >
-              <div className="p-6 h-full flex flex-col justify-center">
-                <div className="inline-flex p-2 rounded-lg bg-gradient-to-r from-sky-500 to-blue-500 mb-3 group-hover:scale-110 transition-transform duration-300 w-fit">
-                  <ChartBarIcon className="h-5 w-5 text-white" />
+              <div className="p-6 h-full flex flex-col">
+                <div className="flex items-center mb-4">
+                  <div className="inline-flex p-2 rounded-lg bg-gradient-to-r from-orange-500 to-red-500 group-hover:scale-110 transition-transform duration-300 w-fit mr-3">
+                    <ClockIcon className="h-5 w-5 text-white" />
+                  </div>
+                  <h3 className="text-lg font-bold text-white group-hover:text-orange-400 transition-colors duration-300">
+                    時間ログ
+                  </h3>
                 </div>
-                <h3 className="text-lg font-bold text-white mb-2 group-hover:text-sky-400 transition-colors duration-300">
-                  12週間目標
-                </h3>
-                <p className="text-gray-400 group-hover:text-gray-300 transition-colors duration-300 text-sm mb-2 line-clamp-3">
-                  {todayData.yearGoal || '12週間目標がまだ設定されていません'}
-                </p>
-                <p className="text-gray-500 text-xs">
-                  クリックして目標を設定・編集
-                </p>
+
+                <div className="flex-1 space-y-4">
+                  {/* メインタイマー表示 */}
+                  <div className="relative bg-gradient-to-br from-gray-700/50 to-gray-800/50 rounded-xl p-4 border border-gray-600/30">
+                    {/* タイマー状態インジケーター */}
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center space-x-2">
+                        <div className={`w-3 h-3 rounded-full ${todayData.timerRunning ? 'bg-green-400 animate-pulse' : 'bg-gray-500'}`}></div>
+                        <span className={`text-sm font-medium ${todayData.timerMode === 'work' ? 'text-orange-400' : 'text-green-400'}`}>
+                          {todayData.timerMode === 'work' ? '🍅 作業中' : '☕ 休憩中'}
+                        </span>
+                      </div>
+                      {todayData.timerRunning && (
+                        <span className="text-xs text-gray-400 animate-pulse">実行中</span>
+                      )}
+                    </div>
+
+                    {/* 大きなタイマー表示 */}
+                    <div className="text-center">
+                      <div className={`text-3xl font-mono font-bold mb-2 ${todayData.timerMode === 'work' ? 'text-orange-400' : 'text-green-400'} ${todayData.timerRunning ? 'animate-pulse' : ''}`}>
+                        {String(todayData.timerMinutes).padStart(2, '0')}:{String(todayData.timerSeconds).padStart(2, '0')}
+                      </div>
+
+                      {/* プログレスバー */}
+                      {todayData.timerRunning && (
+                        <div className="w-full bg-gray-600 rounded-full h-1.5 mb-2">
+                          <div
+                            className={`h-1.5 rounded-full transition-all duration-1000 ${todayData.timerMode === 'work' ? 'bg-gradient-to-r from-orange-500 to-red-500' : 'bg-gradient-to-r from-green-500 to-emerald-500'}`}
+                            style={{
+                              width: `${Math.max(0, Math.min(100, ((todayData.timerMode === 'work' ? 25 : 5) * 60 - (todayData.timerMinutes * 60 + todayData.timerSeconds)) / ((todayData.timerMode === 'work' ? 25 : 5) * 60) * 100))}%`
+                            }}
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* タイマーコントロールボタン */}
+                    <div className="flex justify-center space-x-2 mt-3">
+                      {!todayData.timerRunning ? (
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            startTimer()
+                          }}
+                          className="flex items-center px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white text-xs rounded-md font-medium transition-colors"
+                        >
+                          ▶ 開始
+                        </button>
+                      ) : (
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            pauseTimer()
+                          }}
+                          className="flex items-center px-3 py-1.5 bg-yellow-500 hover:bg-yellow-600 text-white text-xs rounded-md font-medium transition-colors"
+                        >
+                          ⏸ 停止
+                        </button>
+                      )}
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          resetTimer()
+                        }}
+                        className="flex items-center px-3 py-1.5 bg-gray-600 hover:bg-gray-700 text-white text-xs rounded-md font-medium transition-colors"
+                      >
+                        ⏹ リセット
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* 現在のタスクと開始前メモ */}
+                  <div className="grid grid-cols-1 gap-3">
+                    {/* 現在のタスク */}
+                    <div className="bg-gray-700/30 rounded-lg p-3">
+                      <div className="flex items-center mb-2">
+                        <span className="text-base mr-2">📝</span>
+                        <span className="text-sm font-medium text-gray-300">現在のタスク</span>
+                      </div>
+                      <p className="text-white text-sm font-medium break-words">
+                        {todayData.currentTaskName || 'タスクが設定されていません'}
+                      </p>
+                    </div>
+
+                    {/* 開始前メモ */}
+                    {todayData.currentBeforeNote && (
+                      <div className="bg-gray-700/30 rounded-lg p-3">
+                        <div className="flex items-center mb-2">
+                          <span className="text-base mr-2">💭</span>
+                          <span className="text-sm font-medium text-gray-300">開始前メモ</span>
+                        </div>
+                        <p className="text-gray-300 text-sm break-words line-clamp-3">
+                          {todayData.currentBeforeNote}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-700/50">
+                  <span className="text-gray-500 text-xs">
+                    詳細ページへ →
+                  </span>
+                </div>
               </div>
-              <div className="absolute inset-0 bg-gradient-to-r from-sky-500 to-blue-500 opacity-0 group-hover:opacity-5 transition-opacity duration-300 pointer-events-none" />
-            </Link>
+
+              {/* ホバーエフェクト */}
+              <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-red-500 opacity-0 group-hover:opacity-5 transition-opacity duration-300 pointer-events-none" />
+
+              {/* 実行中の場合のグロー効果 */}
+              {todayData.timerRunning && (
+                <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-red-500/20 animate-pulse pointer-events-none rounded-xl" />
+              )}
+            </div>
 
             {/* 週間目標 */}
             <Link
