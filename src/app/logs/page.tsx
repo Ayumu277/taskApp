@@ -225,23 +225,7 @@ export default function LogsPage() {
 
         {error && (
           <div className="bg-red-900/20 border border-red-500/50 rounded-lg p-4 mb-6">
-            <p className="text-red-400 mb-2">エラー: {error}</p>
-            {error.includes('Supabaseが設定されていません') && (
-              <div className="text-sm text-gray-300 mt-3">
-                <p className="mb-2">Supabaseを設定するには：</p>
-                <ol className="list-decimal list-inside space-y-1 text-xs">
-                  <li>プロジェクトルートに <code className="bg-gray-700 px-1 rounded">.env.local</code> ファイルを作成</li>
-                  <li>以下の内容を追加：
-                    <pre className="bg-gray-800 p-2 rounded mt-1 text-xs">
-{`NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key`}
-                    </pre>
-                  </li>
-                  <li>Supabaseプロジェクトで <code className="bg-gray-700 px-1 rounded">supabase_setup.sql</code> を実行</li>
-                  <li>開発サーバーを再起動</li>
-                </ol>
-              </div>
-            )}
+            <p className="text-red-400">エラー: {error}</p>
           </div>
         )}
 

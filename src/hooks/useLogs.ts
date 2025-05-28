@@ -32,18 +32,7 @@ export const useLogs = () => {
   const [error, setError] = useState<string | null>(null)
   const { user } = useAuth()
 
-  // Check if Supabase is configured
-  const checkSupabaseConfig = () => {
-    if (!supabase) {
-      setError('Supabaseが設定されていません。環境変数を確認してください。')
-      return false
-    }
-    return true
-  }
-
   const saveDailyLog = async (date: string, tasks: TaskLog[]) => {
-    if (!checkSupabaseConfig()) return false
-
     if (!user) {
       setError('ユーザーがログインしていません')
       return false
@@ -53,7 +42,7 @@ export const useLogs = () => {
     setError(null)
 
     try {
-      const { error } = await supabase!
+      const { error } = await supabase
         .from('daily_logs')
         .upsert({
           user_id: user.id,
@@ -73,8 +62,6 @@ export const useLogs = () => {
   }
 
   const saveWeeklyLog = async (weekStart: string, goal: string, focusTasks: TaskLog[]) => {
-    if (!checkSupabaseConfig()) return false
-
     if (!user) {
       setError('ユーザーがログインしていません')
       return false
@@ -84,7 +71,7 @@ export const useLogs = () => {
     setError(null)
 
     try {
-      const { error } = await supabase!
+      const { error } = await supabase
         .from('weekly_logs')
         .upsert({
           user_id: user.id,
@@ -107,14 +94,13 @@ export const useLogs = () => {
   }
 
   const getDailyLogs = async (limit = 30) => {
-    if (!checkSupabaseConfig()) return []
     if (!user) return []
 
     setLoading(true)
     setError(null)
 
     try {
-      const { data, error } = await supabase!
+      const { data, error } = await supabase
         .from('daily_logs')
         .select('*')
         .eq('user_id', user.id)
@@ -132,14 +118,13 @@ export const useLogs = () => {
   }
 
   const getWeeklyLogs = async (limit = 12) => {
-    if (!checkSupabaseConfig()) return []
     if (!user) return []
 
     setLoading(true)
     setError(null)
 
     try {
-      const { data, error } = await supabase!
+      const { data, error } = await supabase
         .from('weekly_logs')
         .select('*')
         .eq('user_id', user.id)
@@ -157,8 +142,6 @@ export const useLogs = () => {
   }
 
   const updateDailyLog = async (logId: string, tasks: TaskLog[]) => {
-    if (!checkSupabaseConfig()) return false
-
     if (!user) {
       setError('ユーザーがログインしていません')
       return false
@@ -168,7 +151,7 @@ export const useLogs = () => {
     setError(null)
 
     try {
-      const { error } = await supabase!
+      const { error } = await supabase
         .from('daily_logs')
         .update({
           tasks,
@@ -188,8 +171,6 @@ export const useLogs = () => {
   }
 
   const updateWeeklyLog = async (logId: string, goal: string, focusTasks: TaskLog[]) => {
-    if (!checkSupabaseConfig()) return false
-
     if (!user) {
       setError('ユーザーがログインしていません')
       return false
@@ -199,7 +180,7 @@ export const useLogs = () => {
     setError(null)
 
     try {
-      const { error } = await supabase!
+      const { error } = await supabase
         .from('weekly_logs')
         .update({
           tasks: {
@@ -222,8 +203,6 @@ export const useLogs = () => {
   }
 
   const deleteDailyLog = async (logId: string) => {
-    if (!checkSupabaseConfig()) return false
-
     if (!user) {
       setError('ユーザーがログインしていません')
       return false
@@ -233,7 +212,7 @@ export const useLogs = () => {
     setError(null)
 
     try {
-      const { error } = await supabase!
+      const { error } = await supabase
         .from('daily_logs')
         .delete()
         .eq('id', logId)
@@ -250,8 +229,6 @@ export const useLogs = () => {
   }
 
   const deleteWeeklyLog = async (logId: string) => {
-    if (!checkSupabaseConfig()) return false
-
     if (!user) {
       setError('ユーザーがログインしていません')
       return false
@@ -261,7 +238,7 @@ export const useLogs = () => {
     setError(null)
 
     try {
-      const { error } = await supabase!
+      const { error } = await supabase
         .from('weekly_logs')
         .delete()
         .eq('id', logId)
