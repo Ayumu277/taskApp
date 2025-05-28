@@ -9,6 +9,9 @@ import { PlusIcon, CheckIcon, BookmarkIcon } from '@heroicons/react/24/outline';
 import { useLogs, TaskLog } from '@/hooks/useLogs';
 import { useAuth } from '@/hooks/useAuth';
 
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
 interface SessionProgress {
   id: number;
   label: string;
@@ -39,6 +42,7 @@ const DayPage = () => {
   const [hourTasks, setHourTasks] = useState<HourTask[]>([]);
   const [isHourModalOpen, setIsHourModalOpen] = useState(false);
   const [overallCompletion, setOverallCompletion] = useState<number>(0);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   const { saveDailyLog, loading: logLoading, error: logError } = useLogs();
   const { isAuthenticated } = useAuth();
@@ -47,7 +51,10 @@ const DayPage = () => {
     return new Date().toISOString().split('T')[0]; // YYYY-MM-DD
   }, []);
 
+  // Load data only on client side
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+
     const dateStr = getFormattedDate();
     setTodayKey(dateStr);
 
@@ -88,42 +95,45 @@ const DayPage = () => {
     if (loadedHourTasks && Array.isArray(loadedHourTasks)) {
       setHourTasks(loadedHourTasks);
     }
+
+    setIsLoaded(true);
   }, [getFormattedDate]);
 
   // Save daily goal
   useEffect(() => {
-    if (todayKey) {
-      const goalKey = `dayGoal:${todayKey}`;
-      setItem(goalKey, dailyGoal);
-    }
-  }, [dailyGoal, todayKey]);
+    if (typeof window === 'undefined' || !isLoaded || !todayKey) return;
+
+    const goalKey = `dayGoal:${todayKey}`;
+    setItem(goalKey, dailyGoal);
+  }, [dailyGoal, todayKey, isLoaded]);
 
   // Save focus tasks
   useEffect(() => {
-    if (todayKey) {
-      const focusKey = `dayFocus:${todayKey}`;
-      setItem(focusKey, focusTasks);
-    }
-  }, [focusTasks, todayKey]);
+    if (typeof window === 'undefined' || !isLoaded || !todayKey) return;
+
+    const focusKey = `dayFocus:${todayKey}`;
+    setItem(focusKey, focusTasks);
+  }, [focusTasks, todayKey, isLoaded]);
 
   // Save session progress
   useEffect(() => {
-    if (todayKey) {
-      const progressKey = `dayProgress:${todayKey}`;
-      setItem(progressKey, sessions);
-    }
+    if (typeof window === 'undefined' || !isLoaded || !todayKey) return;
+
+    const progressKey = `dayProgress:${todayKey}`;
+    setItem(progressKey, sessions);
+
     // Calculate overall completion
     const totalValue = sessions.reduce((sum, session) => sum + session.value, 0);
     setOverallCompletion(sessions.length > 0 ? totalValue / sessions.length : 0);
-  }, [sessions, todayKey]);
+  }, [sessions, todayKey, isLoaded]);
 
   // Save hour tasks
   useEffect(() => {
-    if (todayKey) {
-      const hourKey = `hourTasks:${todayKey}`;
-      setItem(hourKey, hourTasks);
-    }
-  }, [hourTasks, todayKey]);
+    if (typeof window === 'undefined' || !isLoaded || !todayKey) return;
+
+    const hourKey = `hourTasks:${todayKey}`;
+    setItem(hourKey, hourTasks);
+  }, [hourTasks, todayKey, isLoaded]);
 
   const handleGoalChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setDailyGoal(event.target.value);
@@ -187,8 +197,16 @@ const DayPage = () => {
   const completedFocusTasks = focusTasks.filter(task => task.completed && task.text.trim()).length;
   const totalFocusTasks = focusTasks.filter(task => task.text.trim()).length;
 
-  if (!todayKey) {
-    return <div className="p-4">Loading...</div>;
+  // Show loading screen until data is loaded
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 animate-spin rounded-full border-b-2 border-sky-400 mx-auto mb-4"></div>
+          <p className="text-gray-400">読み込み中...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
