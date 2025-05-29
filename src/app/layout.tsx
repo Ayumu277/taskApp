@@ -3,11 +3,15 @@ import { StagewiseToolbar } from '@stagewise/toolbar-next'
 
 export const metadata = {
   title: 'Face Yourself',
-  description: '年間目標から時間単位のタスクまで、あらゆるレベルで生産性を追跡・管理する究極のタスク管理アプリ',
+  description:
+    '年間目標から時間単位のタスクまで、あらゆるレベルで生産性を追跡・管理する究極のタスク管理アプリ',
+  icons: {
+    icon: '/face-yourself-logo.png',
+  },
 }
 
 const stagewiseConfig = {
-  plugins: []
+  plugins: [],
 }
 
 export default function RootLayout({
