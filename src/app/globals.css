@@ -5,10 +5,77 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    /* PWA対応: ユーザーが拡大縮小できないようにする */
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
   }
 
   body {
     @apply bg-gray-900 text-white;
+    /* モバイル最適化: セーフエリアに対応 */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    /* タッチスクロールの改善 */
+    -webkit-overflow-scrolling: touch;
+    /* タップハイライトの無効化 */
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* PWA対応: スタンドアロンモードでのスタイル調整 */
+  @media (display-mode: standalone) {
+    body {
+      /* スタンドアロンモード時の追加スタイル */
+      user-select: none;
+      -webkit-user-select: none;
+    }
+  }
+
+  /* モバイル最適化: フォーカス時のアウトライン */
+  input, textarea, button, select {
+    @apply focus:outline-none focus:ring-2 focus:ring-sky-500;
+  }
+
+  /* スライダーのカスタムスタイル */
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  input[type="range"]::-webkit-slider-track {
+    background: #4b5563;
+    height: 8px;
+    border-radius: 4px;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    background: #38bdf8;
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid #1e293b;
+  }
+
+  input[type="range"]::-moz-range-track {
+    background: #4b5563;
+    height: 8px;
+    border-radius: 4px;
+    border: none;
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    background: #38bdf8;
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid #1e293b;
   }
 }
 
@@ -19,6 +86,22 @@
 
   .card-hover {
     @apply transition-all duration-300 hover:scale-105 hover:shadow-2xl;
+  }
+
+  /* モバイル最適化: タッチフレンドリーなボタン */
+  .btn-touch {
+    @apply min-h-[44px] min-w-[44px] flex items-center justify-center;
+  }
+
+  /* モバイル最適化: カードのタッチ対応 */
+  .card-touch {
+    @apply active:scale-95 transition-transform duration-150;
+  }
+
+  /* PWA対応: インストールプロンプトのスタイル */
+  .pwa-install-prompt {
+    @apply fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-80 z-50;
+    @apply bg-gray-800 border border-gray-700 rounded-lg p-4 shadow-xl;
   }
 }
 
@@ -38,10 +121,56 @@
     transform: translateY(20px);
   }
 
+  /* モバイル最適化: スクロールバーのカスタマイズ */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #4b5563 #1f2937;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: #1f2937;
+    border-radius: 3px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: #4b5563;
+    border-radius: 3px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: #6b7280;
+  }
+
+  /* PWA対応: ローディングアニメーション */
+  .loading-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* モバイル最適化: セーフエリア対応のパディング */
+  .safe-area-padding {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
   @keyframes fadeInUp {
     to {
       opacity: 1;
       transform: translateY(0);
+    }
+  }
+
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: .5;
     }
   }
 }

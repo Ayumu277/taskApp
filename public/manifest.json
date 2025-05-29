@@ -1,0 +1,27 @@
+{
+  "name": "Face Yourself",
+  "short_name": "Face Yourself",
+  "description": "12週間で人生を加速させる、戦略的タスク管理アプリ",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#111827",
+  "theme_color": "#0ea5e9",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/face-yourself-logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/face-yourself-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "categories": ["productivity", "lifestyle"],
+  "lang": "ja",
+  "dir": "ltr"
+}

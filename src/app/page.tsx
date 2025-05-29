@@ -17,6 +17,8 @@ import {
 import { getItem, setItem } from '@/lib/storage'
 import { useAuth } from '@/hooks/useAuth'
 import LogoutButton from '@/components/LogoutButton'
+import SyncStatusIndicator from '@/components/SyncStatusIndicator'
+import PWAInstaller from '@/components/PWAInstaller'
 
 const navigationCards = [
   {
@@ -285,85 +287,96 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900" />
         <div className="absolute inset-0 bg-gradient-to-r from-sky-500/10 via-transparent to-indigo-500/10" />
 
-        {/* Header with User Menu */}
+        {/* Header with User Menu and Sync Status */}
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
-          <div className="flex justify-end">
-            {loading ? (
-              <div className="w-8 h-8 animate-spin rounded-full border-b-2 border-sky-400"></div>
-            ) : isAuthenticated ? (
-              /* Authenticated User Menu */
-              <div className="relative">
-                <button
-                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="flex items-center space-x-2 bg-gray-800/50 hover:bg-gray-800/70 backdrop-blur-sm border border-gray-700/50 rounded-lg px-3 py-2 transition-all duration-200"
-                >
-                  <div className="w-8 h-8 bg-gradient-to-r from-sky-500 to-indigo-500 rounded-full flex items-center justify-center">
-                    <UserIcon className="w-4 h-4 text-white" />
-                  </div>
-                  <span className="text-white text-sm font-medium hidden sm:block">
-                    {user?.email?.split('@')[0] || 'ユーザー'}
-                  </span>
-                  <ChevronDownIcon className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isUserMenuOpen ? 'rotate-180' : ''}`} />
-                </button>
+          <div className="flex justify-between items-center">
+            {/* Sync Status Indicator */}
+            <div className="flex-1">
+              <SyncStatusIndicator className="hidden sm:flex" />
+            </div>
 
-                {/* Dropdown Menu */}
-                {isUserMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50">
-                    <div className="py-1">
-                      <div className="px-4 py-2 border-b border-gray-700">
-                        <p className="text-sm text-gray-300 truncate">{user?.email}</p>
-                      </div>
-                      <Link
-                        href="/settings"
-                        className="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200"
-                        onClick={() => setIsUserMenuOpen(false)}
-                      >
-                        <Cog6ToothIcon className="w-4 h-4 mr-3" />
-                        設定
-                      </Link>
-                      <div className="px-4 py-2">
-                        <LogoutButton
-                          variant="text"
-                          size="sm"
-                          className="w-full justify-start text-red-400 hover:text-red-300 hover:bg-red-900/20"
-                          showIcon={true}
+            {/* User Menu */}
+            <div className="flex items-center space-x-3">
+              {/* Mobile Sync Status */}
+              <SyncStatusIndicator className="sm:hidden" showText={false} />
+
+              {loading ? (
+                <div className="w-8 h-8 animate-spin rounded-full border-b-2 border-sky-400"></div>
+              ) : isAuthenticated ? (
+                /* Authenticated User Menu */
+                <div className="relative">
+                  <button
+                    onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                    className="flex items-center space-x-2 bg-gray-800/50 hover:bg-gray-800/70 backdrop-blur-sm border border-gray-700/50 rounded-lg px-3 py-2 transition-all duration-200 min-h-[44px]"
+                  >
+                    <div className="w-8 h-8 bg-gradient-to-r from-sky-500 to-indigo-500 rounded-full flex items-center justify-center">
+                      <UserIcon className="w-4 h-4 text-white" />
+                    </div>
+                    <span className="text-white text-sm font-medium hidden sm:block">
+                      {user?.email?.split('@')[0] || 'ユーザー'}
+                    </span>
+                    <ChevronDownIcon className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isUserMenuOpen ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {/* Dropdown Menu */}
+                  {isUserMenuOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50">
+                      <div className="py-1">
+                        <div className="px-4 py-2 border-b border-gray-700">
+                          <p className="text-sm text-gray-300 truncate">{user?.email}</p>
+                        </div>
+                        <Link
+                          href="/settings"
+                          className="flex items-center px-4 py-3 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200"
+                          onClick={() => setIsUserMenuOpen(false)}
                         >
-                          ログアウト
-                        </LogoutButton>
+                          <Cog6ToothIcon className="w-4 h-4 mr-3" />
+                          設定
+                        </Link>
+                        <div className="px-4 py-2">
+                          <LogoutButton
+                            variant="text"
+                            size="sm"
+                            className="w-full justify-start text-red-400 hover:text-red-300 hover:bg-red-900/20 min-h-[44px]"
+                            showIcon={true}
+                          >
+                            ログアウト
+                          </LogoutButton>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
-              </div>
-            ) : (
-              /* Unauthenticated User Buttons */
-              <div className="flex items-center space-x-3">
-                <Link
-                  href="/login"
-                  className="bg-gray-800/50 hover:bg-gray-800/70 backdrop-blur-sm border border-gray-700/50 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
-                >
-                  ログイン
-                </Link>
-                <Link
-                  href="/signup"
-                  className="bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-600 hover:to-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
-                >
-                  新規登録
-                </Link>
-              </div>
-            )}
+                  )}
+                </div>
+              ) : (
+                /* Unauthenticated User Buttons */
+                <div className="flex items-center space-x-3">
+                  <Link
+                    href="/login"
+                    className="bg-gray-800/50 hover:bg-gray-800/70 backdrop-blur-sm border border-gray-700/50 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 min-h-[44px] flex items-center"
+                  >
+                    ログイン
+                  </Link>
+                  <Link
+                    href="/signup"
+                    className="bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-600 hover:to-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 min-h-[44px] flex items-center"
+                  >
+                    新規登録
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
-        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-12">
+        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-12 pb-8 sm:pb-12">
           <div className="text-center">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-sky-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent animate-pulse">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 bg-gradient-to-r from-sky-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent animate-pulse">
               Face Yourself
             </h1>
-            <p className="text-lg sm:text-xl md:text-2xl text-gray-300 mb-6 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-300 mb-4 sm:mb-6 max-w-2xl mx-auto leading-relaxed px-4">
               12週間で人生を加速させる、戦略的タスク管理アプリ。
             </p>
-            <p className="text-base sm:text-lg text-gray-400 mb-8 max-w-xl mx-auto">
+            <p className="text-sm sm:text-base md:text-lg text-gray-400 mb-6 sm:mb-8 max-w-xl mx-auto px-4">
               目標を年間ではなく12週単位で設計。集中・実行・達成のループで、最高の自分を更新し続ける。
             </p>
           </div>
@@ -371,37 +384,37 @@ export default function HomePage() {
       </div>
 
       {/* Top Row — 今日のタスク & 目標カード */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 pt-12">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 sm:pb-16 pt-6 sm:pt-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-6 sm:mb-8">
           {/* 今日のタスク */}
-          <div className="group relative overflow-hidden rounded-xl bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 hover:border-gray-600/50 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-green-500/20 min-h-[400px]">
+          <div className="group relative overflow-hidden rounded-xl bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 hover:border-gray-600/50 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-green-500/20 min-h-[350px] sm:min-h-[400px]">
             <Link href="/day" className="block h-full">
-              <div className="p-8 h-full flex flex-col">
-                <div className="flex items-center mb-6">
-                  <div className="inline-flex p-3 rounded-lg bg-gradient-to-r from-green-500 to-emerald-500 group-hover:scale-110 transition-transform duration-300 w-fit mr-4">
-                    <ClockIcon className="h-6 w-6 text-white" />
+              <div className="p-6 sm:p-8 h-full flex flex-col">
+                <div className="flex items-center mb-4 sm:mb-6">
+                  <div className="inline-flex p-2 sm:p-3 rounded-lg bg-gradient-to-r from-green-500 to-emerald-500 group-hover:scale-110 transition-transform duration-300 w-fit mr-3 sm:mr-4">
+                    <ClockIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                   </div>
-                  <h3 className="text-2xl font-bold text-white group-hover:text-green-400 transition-colors duration-300">
+                  <h3 className="text-xl sm:text-2xl font-bold text-white group-hover:text-green-400 transition-colors duration-300">
                     今日のタスク
                   </h3>
                 </div>
-                <div className="flex-1 space-y-4">
+                <div className="flex-1 space-y-3 sm:space-y-4">
                   {/* 今日の目標 */}
                   <div className="bg-gray-700/30 rounded-lg p-3">
                     <div className="flex items-center mb-2">
-                      <span className="text-lg mr-2">✅</span>
+                      <span className="text-base sm:text-lg mr-2">✅</span>
                       <span className="text-sm font-medium text-gray-300">
                         今日の目標
                       </span>
                     </div>
-                    <p className="text-white text-sm">
+                    <p className="text-white text-sm break-words">
                       {todayData.todayTask || '未設定'}
                     </p>
                   </div>
                   {/* フォーカスタスク */}
                   <div className="bg-gray-700/30 rounded-lg p-3">
                     <div className="flex items-center mb-2">
-                      <span className="text-lg mr-2">📋</span>
+                      <span className="text-base sm:text-lg mr-2">📋</span>
                       <span className="text-sm font-medium text-gray-300">
                         フォーカスタスク
                       </span>
@@ -410,7 +423,7 @@ export default function HomePage() {
                       <ul className="space-y-1">
                         {todayData.focusTasks.slice(0, 4).map((task, i) => (
                           task.text.trim() && (
-                            <li key={i} className="text-white text-sm">
+                            <li key={i} className="text-white text-sm break-words">
                               • {task.text} {task.completed && '✓'}
                             </li>
                           )
@@ -425,7 +438,7 @@ export default function HomePage() {
                   {/* セッション進捗 */}
                   <div className="bg-gray-700/30 rounded-lg p-3">
                     <div className="flex items-center mb-3">
-                      <span className="text-lg mr-2">🕒</span>
+                      <span className="text-base sm:text-lg mr-2">🕒</span>
                       <span className="text-sm font-medium text-gray-300">
                         セッション進捗
                       </span>
@@ -458,7 +471,7 @@ export default function HomePage() {
                   {/* 時間ログ */}
                   <div className="bg-gray-700/30 rounded-lg p-3">
                     <div className="flex items-center mb-2">
-                      <span className="text-lg mr-2">⏱</span>
+                      <span className="text-base sm:text-lg mr-2">⏱</span>
                       <span className="text-sm font-medium text-gray-300">
                         時間ログ
                       </span>
@@ -476,30 +489,30 @@ export default function HomePage() {
           </div>
 
           {/* 右側の目標カード（2段） */}
-          <div className="flex flex-col gap-4 min-h-[400px]">
+          <div className="flex flex-col gap-4 min-h-[350px] sm:min-h-[400px]">
             {/* 時間ビュー */}
             <div
               onClick={() => window.location.href = '/hour'}
               className="group relative overflow-hidden rounded-xl bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 hover:border-gray-600/50 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-orange-500/20 flex-1 cursor-pointer"
             >
-              <div className="p-6 h-full flex flex-col">
-                <div className="flex items-center mb-4">
+              <div className="p-4 sm:p-6 h-full flex flex-col">
+                <div className="flex items-center mb-3 sm:mb-4">
                   <div className="inline-flex p-2 rounded-lg bg-gradient-to-r from-orange-500 to-red-500 group-hover:scale-110 transition-transform duration-300 w-fit mr-3">
-                    <ClockIcon className="h-5 w-5 text-white" />
+                    <ClockIcon className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                   </div>
-                  <h3 className="text-lg font-bold text-white group-hover:text-orange-400 transition-colors duration-300">
+                  <h3 className="text-base sm:text-lg font-bold text-white group-hover:text-orange-400 transition-colors duration-300">
                     時間ログ
                   </h3>
                 </div>
 
-                <div className="flex-1 space-y-4">
+                <div className="flex-1 space-y-3 sm:space-y-4">
                   {/* メインタイマー表示 */}
-                  <div className="relative bg-gradient-to-br from-gray-700/50 to-gray-800/50 rounded-xl p-4 border border-gray-600/30">
+                  <div className="relative bg-gradient-to-br from-gray-700/50 to-gray-800/50 rounded-xl p-3 sm:p-4 border border-gray-600/30">
                     {/* タイマー状態インジケーター */}
-                    <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center justify-between mb-2 sm:mb-3">
                       <div className="flex items-center space-x-2">
-                        <div className={`w-3 h-3 rounded-full ${todayData.timerRunning ? 'bg-green-400 animate-pulse' : 'bg-gray-500'}`}></div>
-                        <span className={`text-sm font-medium ${todayData.timerMode === 'work' ? 'text-orange-400' : 'text-green-400'}`}>
+                        <div className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full ${todayData.timerRunning ? 'bg-green-400 animate-pulse' : 'bg-gray-500'}`}></div>
+                        <span className={`text-xs sm:text-sm font-medium ${todayData.timerMode === 'work' ? 'text-orange-400' : 'text-green-400'}`}>
                           {todayData.timerMode === 'work' ? '🍅 作業中' : '☕ 休憩中'}
                         </span>
                       </div>
@@ -510,7 +523,7 @@ export default function HomePage() {
 
                     {/* 大きなタイマー表示 */}
                     <div className="text-center">
-                      <div className={`text-3xl font-mono font-bold mb-2 ${todayData.timerMode === 'work' ? 'text-orange-400' : 'text-green-400'} ${todayData.timerRunning ? 'animate-pulse' : ''}`}>
+                      <div className={`text-2xl sm:text-3xl font-mono font-bold mb-2 ${todayData.timerMode === 'work' ? 'text-orange-400' : 'text-green-400'} ${todayData.timerRunning ? 'animate-pulse' : ''}`}>
                         {String(todayData.timerMinutes).padStart(2, '0')}:{String(todayData.timerSeconds).padStart(2, '0')}
                       </div>
 
@@ -536,7 +549,7 @@ export default function HomePage() {
                             e.stopPropagation()
                             startTimer()
                           }}
-                          className="flex items-center px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white text-xs rounded-md font-medium transition-colors"
+                          className="flex items-center px-2 sm:px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white text-xs rounded-md font-medium transition-colors min-h-[36px]"
                         >
                           ▶ 開始
                         </button>
@@ -547,7 +560,7 @@ export default function HomePage() {
                             e.stopPropagation()
                             pauseTimer()
                           }}
-                          className="flex items-center px-3 py-1.5 bg-yellow-500 hover:bg-yellow-600 text-white text-xs rounded-md font-medium transition-colors"
+                          className="flex items-center px-2 sm:px-3 py-1.5 bg-yellow-500 hover:bg-yellow-600 text-white text-xs rounded-md font-medium transition-colors min-h-[36px]"
                         >
                           ⏸ 停止
                         </button>
@@ -558,7 +571,7 @@ export default function HomePage() {
                           e.stopPropagation()
                           resetTimer()
                         }}
-                        className="flex items-center px-3 py-1.5 bg-gray-600 hover:bg-gray-700 text-white text-xs rounded-md font-medium transition-colors"
+                        className="flex items-center px-2 sm:px-3 py-1.5 bg-gray-600 hover:bg-gray-700 text-white text-xs rounded-md font-medium transition-colors min-h-[36px]"
                       >
                         ⏹ リセット
                       </button>
@@ -566,26 +579,26 @@ export default function HomePage() {
                   </div>
 
                   {/* 現在のタスクと開始前メモ */}
-                  <div className="grid grid-cols-1 gap-3">
+                  <div className="grid grid-cols-1 gap-2 sm:gap-3">
                     {/* 現在のタスク */}
-                    <div className="bg-gray-700/30 rounded-lg p-3">
-                      <div className="flex items-center mb-2">
-                        <span className="text-base mr-2">📝</span>
-                        <span className="text-sm font-medium text-gray-300">現在のタスク</span>
+                    <div className="bg-gray-700/30 rounded-lg p-2 sm:p-3">
+                      <div className="flex items-center mb-1 sm:mb-2">
+                        <span className="text-sm sm:text-base mr-2">📝</span>
+                        <span className="text-xs sm:text-sm font-medium text-gray-300">現在のタスク</span>
                       </div>
-                      <p className="text-white text-sm font-medium break-words">
+                      <p className="text-white text-xs sm:text-sm font-medium break-words">
                         {todayData.currentTaskName || 'タスクが設定されていません'}
                       </p>
                     </div>
 
                     {/* 開始前メモ */}
                     {todayData.currentBeforeNote && (
-                      <div className="bg-gray-700/30 rounded-lg p-3">
-                        <div className="flex items-center mb-2">
-                          <span className="text-base mr-2">💭</span>
-                          <span className="text-sm font-medium text-gray-300">開始前メモ</span>
+                      <div className="bg-gray-700/30 rounded-lg p-2 sm:p-3">
+                        <div className="flex items-center mb-1 sm:mb-2">
+                          <span className="text-sm sm:text-base mr-2">💭</span>
+                          <span className="text-xs sm:text-sm font-medium text-gray-300">開始前メモ</span>
                         </div>
-                        <p className="text-gray-300 text-sm break-words line-clamp-3">
+                        <p className="text-gray-300 text-xs sm:text-sm break-words line-clamp-2 sm:line-clamp-3">
                           {todayData.currentBeforeNote}
                         </p>
                       </div>
@@ -593,7 +606,7 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-700/50">
+                <div className="flex items-center justify-between mt-3 sm:mt-4 pt-2 sm:pt-3 border-t border-gray-700/50">
                   <span className="text-gray-500 text-xs">
                     詳細ページへ →
                   </span>
@@ -614,16 +627,16 @@ export default function HomePage() {
               href="/week"
               className="group relative overflow-hidden rounded-xl bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 hover:border-gray-600/50 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/20 flex-1 block"
             >
-              <div className="p-6 h-full flex flex-col justify-center">
+              <div className="p-4 sm:p-6 h-full flex flex-col justify-center">
                 <div className="inline-flex p-2 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 mb-3 group-hover:scale-110 transition-transform duration-300 w-fit">
-                  <CalendarDaysIcon className="h-5 w-5 text-white" />
+                  <CalendarDaysIcon className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                 </div>
-                <h3 className="text-lg font-bold text-white mb-2 group-hover:text-blue-400 transition-colors duration-300">
+                <h3 className="text-base sm:text-lg font-bold text-white mb-2 group-hover:text-blue-400 transition-colors duration-300">
                   週間目標
                 </h3>
                 <div className="text-gray-400 group-hover:text-gray-300 transition-colors duration-300">
                   {todayData.weekGoal ? (
-                    <p className="text-sm leading-relaxed line-clamp-3 mb-2">
+                    <p className="text-sm leading-relaxed line-clamp-2 sm:line-clamp-3 mb-2 break-words">
                       {todayData.weekGoal}
                     </p>
                   ) : (
@@ -642,27 +655,27 @@ export default function HomePage() {
         </div>
 
         {/* その他のカード */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
           {/* その他ナビゲーション */}
           {navigationCards.map((card, index) => (
             <Link
               key={card.href}
               href={card.href}
-              className="group relative overflow-hidden rounded-xl bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 hover:border-gray-600/50 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-sky-500/20 h-64"
+              className="group relative overflow-hidden rounded-xl bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 hover:border-gray-600/50 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-sky-500/20 h-48 sm:h-64"
             >
-              <div className="p-6 h-full flex flex-col justify-center">
+              <div className="p-4 sm:p-6 h-full flex flex-col justify-center">
                 <div
-                  className={`inline-flex p-3 rounded-lg bg-gradient-to-r ${card.gradient} mb-4 group-hover:scale-110 transition-transform duration-300 w-fit`}
+                  className={`inline-flex p-2 sm:p-3 rounded-lg bg-gradient-to-r ${card.gradient} mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300 w-fit`}
                 >
-                  <card.icon className="h-6 w-6 text-white" />
+                  <card.icon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                 </div>
-                <h3 className="text-xl font-semibold text-white mb-2 group-hover:text-sky-400 transition-colors duration-300">
+                <h3 className="text-lg sm:text-xl font-semibold text-white mb-2 group-hover:text-sky-400 transition-colors duration-300">
                   {card.title}
                 </h3>
                 <p className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors duration-300 leading-relaxed">
                   {card.description}
                 </p>
-                <span className="mt-4 flex items-center text-sky-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-xs font-medium">
+                <span className="mt-3 sm:mt-4 flex items-center text-sky-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-xs font-medium">
                   詳細を見る →
                 </span>
               </div>
@@ -672,18 +685,18 @@ export default function HomePage() {
         </div>
 
         {/* 週次レビュー */}
-        <div className="mt-6">
+        <div className="mt-4 sm:mt-6">
           <Link
             href="/review"
             className="group relative overflow-hidden rounded-xl bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 hover:border-gray-600/50 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-emerald-500/20"
           >
-            <div className="p-6 flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <div className="inline-flex p-2.5 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 group-hover:scale-110 transition-transform duration-300">
+            <div className="p-4 sm:p-6 flex items-center justify-between">
+              <div className="flex items-center space-x-3 sm:space-x-4">
+                <div className="inline-flex p-2 sm:p-2.5 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 group-hover:scale-110 transition-transform duration-300">
                   <DocumentTextIcon className="h-4 w-4 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-white group-hover:text-emerald-400 transition-colors duration-300">
+                  <h3 className="text-base sm:text-lg font-semibold text-white group-hover:text-emerald-400 transition-colors duration-300">
                     週次レビュー
                   </h3>
                   <p className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors duration-300">
@@ -692,7 +705,7 @@ export default function HomePage() {
                 </div>
               </div>
               <div className="flex items-center text-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300 space-x-1 text-xs font-medium">
-                <span>レビューを開く</span>
+                <span className="hidden sm:inline">レビューを開く</span>
                 <svg className="h-3 w-3 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
@@ -705,22 +718,25 @@ export default function HomePage() {
 
       {/* Footer CTA */}
       <div className="bg-gray-800/30 border-t border-gray-700/50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
-          <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-3">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 text-center">
+          <h3 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-white mb-3">
             今すぐ生産性を向上させましょう
           </h3>
-          <p className="text-gray-400 mb-6 max-w-xl mx-auto text-sm sm:text-base">
+          <p className="text-gray-400 mb-4 sm:mb-6 max-w-xl mx-auto text-sm sm:text-base px-4">
             Face Yourselfで目標達成への道のりを明確にし、毎日の進歩を実感してください。
           </p>
           <Link
             href="/dashboard"
-            className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-600 hover:to-indigo-600 text-white font-semibold rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-sky-500/25 text-sm sm:text-base"
+            className="inline-flex items-center px-4 sm:px-6 py-3 bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-600 hover:to-indigo-600 text-white font-semibold rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-sky-500/25 text-sm sm:text-base min-h-[44px]"
           >
             ダッシュボードを開く
             <ChartBarIcon className="ml-2 h-3.5 w-3.5 text-white flex-shrink-0 max-w-none" />
           </Link>
         </div>
       </div>
+
+      {/* PWA Installer */}
+      <PWAInstaller />
     </div>
   )
 }

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import { useAuth } from './useAuth'
+import { useOfflineSync } from './useOfflineSync'
 
 export interface TaskLog {
   id: number
@@ -31,6 +32,7 @@ export const useLogs = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const { user } = useAuth()
+  const { isOnline, saveOfflineData } = useOfflineSync()
 
   const saveDailyLog = async (date: string, tasks: TaskLog[]) => {
     if (!user) {
@@ -42,6 +44,13 @@ export const useLogs = () => {
     setError(null)
 
     try {
+      // オフライン時はローカルストレージに保存
+      if (!isOnline) {
+        saveOfflineData('daily_log', { date, tasks }, user.id)
+        setLoading(false)
+        return true
+      }
+
       const { error } = await supabase
         .from('daily_logs')
         .upsert({
@@ -54,8 +63,10 @@ export const useLogs = () => {
       if (error) throw error
       return true
     } catch (err) {
-      setError(err instanceof Error ? err.message : '保存に失敗しました')
-      return false
+      // オンライン時にエラーが発生した場合もオフラインデータとして保存
+      saveOfflineData('daily_log', { date, tasks }, user.id)
+      setError(err instanceof Error ? err.message : '保存に失敗しました（オフラインで保存されました）')
+      return true // オフライン保存は成功とみなす
     } finally {
       setLoading(false)
     }
@@ -71,6 +82,13 @@ export const useLogs = () => {
     setError(null)
 
     try {
+      // オフライン時はローカルストレージに保存
+      if (!isOnline) {
+        saveOfflineData('weekly_log', { week_start: weekStart, tasks: { goal, focusTasks } }, user.id)
+        setLoading(false)
+        return true
+      }
+
       const { error } = await supabase
         .from('weekly_logs')
         .upsert({
@@ -86,8 +104,10 @@ export const useLogs = () => {
       if (error) throw error
       return true
     } catch (err) {
-      setError(err instanceof Error ? err.message : '保存に失敗しました')
-      return false
+      // オンライン時にエラーが発生した場合もオフラインデータとして保存
+      saveOfflineData('weekly_log', { week_start: weekStart, tasks: { goal, focusTasks } }, user.id)
+      setError(err instanceof Error ? err.message : '保存に失敗しました（オフラインで保存されました）')
+      return true // オフライン保存は成功とみなす
     } finally {
       setLoading(false)
     }
