@@ -15,10 +15,22 @@ export default function PWAInstaller() {
         .register('/sw.js')
         .then((registration) => {
           console.log('Service Worker registered successfully:', registration)
+
+          // Service Worker の更新をチェック
+          registration.addEventListener('updatefound', () => {
+            console.log('Service Worker update found')
+          })
         })
         .catch((error) => {
-          console.log('Service Worker registration failed:', error)
+          console.error('Service Worker registration failed:', error)
         })
+
+      // 既存のService Workerがある場合はリロード
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        console.log('Service Worker controller changed')
+      })
+    } else {
+      console.log('Service Worker is not supported in this browser')
     }
 
     // PWA インストールプロンプトの処理

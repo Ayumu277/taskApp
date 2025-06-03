@@ -488,8 +488,38 @@ export default function HomePage() {
             <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-500 opacity-0 group-hover:opacity-5 transition-opacity duration-300 pointer-events-none" />
           </div>
 
-          {/* 右側の目標カード（2段） */}
+          {/* 右側の目標カード（3段） */}
           <div className="flex flex-col gap-4 min-h-[350px] sm:min-h-[400px]">
+            {/* 12週間目標 */}
+            <Link
+              href="/dashboard"
+              className="group relative overflow-hidden rounded-xl bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 hover:border-gray-600/50 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/20 flex-1 block"
+            >
+              <div className="p-3 sm:p-4 h-full flex flex-col justify-center">
+                <div className="inline-flex p-1.5 sm:p-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 mb-2 sm:mb-3 group-hover:scale-110 transition-transform duration-300 w-fit">
+                  <ChartBarIcon className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
+                </div>
+                <h3 className="text-sm sm:text-base font-bold text-white mb-1 sm:mb-2 group-hover:text-purple-400 transition-colors duration-300">
+                  12週間目標
+                </h3>
+                <div className="text-gray-400 group-hover:text-gray-300 transition-colors duration-300">
+                  {todayData.yearGoal ? (
+                    <p className="text-xs sm:text-sm leading-relaxed line-clamp-2 mb-1 sm:mb-2 break-words">
+                      {todayData.yearGoal}
+                    </p>
+                  ) : (
+                    <p className="text-xs sm:text-sm leading-relaxed mb-1 sm:mb-2">
+                      12週間目標がまだ設定されていません
+                    </p>
+                  )}
+                  <p className="text-xs text-gray-500">
+                    クリックして目標を設定・編集
+                  </p>
+                </div>
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 opacity-0 group-hover:opacity-5 transition-opacity duration-300 pointer-events-none" />
+            </Link>
+
             {/* 時間ビュー */}
             <div
               onClick={() => window.location.href = '/hour'}
@@ -627,20 +657,20 @@ export default function HomePage() {
               href="/week"
               className="group relative overflow-hidden rounded-xl bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 hover:border-gray-600/50 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/20 flex-1 block"
             >
-              <div className="p-4 sm:p-6 h-full flex flex-col justify-center">
-                <div className="inline-flex p-2 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 mb-3 group-hover:scale-110 transition-transform duration-300 w-fit">
-                  <CalendarDaysIcon className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+              <div className="p-3 sm:p-4 h-full flex flex-col justify-center">
+                <div className="inline-flex p-1.5 sm:p-2 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 mb-2 sm:mb-3 group-hover:scale-110 transition-transform duration-300 w-fit">
+                  <CalendarDaysIcon className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
                 </div>
-                <h3 className="text-base sm:text-lg font-bold text-white mb-2 group-hover:text-blue-400 transition-colors duration-300">
+                <h3 className="text-sm sm:text-base font-bold text-white mb-1 sm:mb-2 group-hover:text-blue-400 transition-colors duration-300">
                   週間目標
                 </h3>
                 <div className="text-gray-400 group-hover:text-gray-300 transition-colors duration-300">
                   {todayData.weekGoal ? (
-                    <p className="text-sm leading-relaxed line-clamp-2 sm:line-clamp-3 mb-2 break-words">
+                    <p className="text-xs sm:text-sm leading-relaxed line-clamp-2 mb-1 sm:mb-2 break-words">
                       {todayData.weekGoal}
                     </p>
                   ) : (
-                    <p className="text-sm leading-relaxed mb-2">
+                    <p className="text-xs sm:text-sm leading-relaxed mb-1 sm:mb-2">
                       今週の目標がまだ設定されていません
                     </p>
                   )}

@@ -17,11 +17,24 @@ self.addEventListener('install', (event) => {
         console.log('Opened cache');
         return cache.addAll(urlsToCache);
       })
+      .catch((error) => {
+        console.error('Cache installation failed:', error);
+      })
   );
 });
 
 // リクエストの処理
 self.addEventListener('fetch', (event) => {
+  // chrome-extension スキームのリクエストは無視
+  if (event.request.url.startsWith('chrome-extension://')) {
+    return;
+  }
+
+  // データURLやblobURLも無視
+  if (event.request.url.startsWith('data:') || event.request.url.startsWith('blob:')) {
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
@@ -38,19 +51,34 @@ self.addEventListener('fetch', (event) => {
               return response;
             }
 
+            // chrome-extension スキームのレスポンスはキャッシュしない
+            if (event.request.url.startsWith('chrome-extension://')) {
+              return response;
+            }
+
             // レスポンスをクローンしてキャッシュに保存
             const responseToCache = response.clone();
 
             caches.open(CACHE_NAME)
               .then((cache) => {
-                cache.put(event.request, responseToCache);
+                // キャッシュ可能なリクエストのみ保存
+                if (event.request.method === 'GET' &&
+                    !event.request.url.startsWith('chrome-extension://') &&
+                    !event.request.url.startsWith('data:') &&
+                    !event.request.url.startsWith('blob:')) {
+                  cache.put(event.request, responseToCache);
+                }
+              })
+              .catch((error) => {
+                console.error('Cache put failed:', error);
               });
 
             return response;
           }
         );
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error('Fetch failed:', error);
         // オフライン時のフォールバック
         if (event.request.destination === 'document') {
           return caches.match('/');
